@@ -3,11 +3,9 @@
   "compilerOptions": {
     "module": "ESNext",
     "declaration": true,
-    "incremental": true,
     "outDir": "build/esm",
-    "tsBuildInfoFile": ".tsbuildinfo",
     "plugins": [
-      { "transform": "@aliser/ts-transformer-append-js-extension" }
+      { "transform": "@build-script/typescript-transformer-append-js-extension" }
     ]
   }
 }
