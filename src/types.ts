@@ -73,14 +73,14 @@ export type DataValidator<Data = unknown, Cache = DataCache> = (
   cache: Cache
 ) => DataValidation
 
-export interface DataResolution {
+export type DataResolution = {
   key: string
   isValid: boolean
   errors: DataError[]
   children: DataResolution[]
 }
 
-export interface DataResolverContext {
+export type DataResolverContext = {
   key: string
 }
 
@@ -92,7 +92,7 @@ export type DataResolver<Data = unknown> = (
 
 // Schemas
 
-export interface DataCache {
+export type DataCache = {
   isOptional?: boolean
   isNullable?: boolean
   passthroughObjectProps?: boolean
