@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ES2018",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
+    "importHelpers": false,
+    "baseUrl": ".",
+    "rootDir": "src"
+  },
+  "exclude": ["node_modules", "build", "vite.config.ts"]
+}
