@@ -1,3 +1,5 @@
+![](https://github.com/romelperez/yrel/raw/main/yrel.jpg)
+
 # Yrel
 
 [![version](https://img.shields.io/npm/v/yrel.svg)](https://npmjs.org/package/yrel)
@@ -508,3 +510,11 @@ const schema = v.object({
 
 By default the object data schema will report an error if the validated object contains
 unexpected properties which are not defined in the schema shape. This will disable the error.
+
+## Logo
+
+The Yrel logo is an [illustration](https://kuridelblack.tumblr.com/post/189438276843/yrel-light-of-hope)
+of the character [Yrel](https://wowpedia.fandom.com/wiki/Yrel) in the game
+[World of Warcraft](https://worldofwarcraft.blizzard.com) from the awesome illustrator
+**[@KuridelBlack](https://twitter.com/KuridelBlack)**. Check out her work at
+[linktr.ee/kuridelblack](https://linktr.ee/kuridelblack).
