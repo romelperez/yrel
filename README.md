@@ -7,4 +7,320 @@
 [![github stars](https://img.shields.io/github/stars/romelperez/yrel.svg?style=social&label=stars)](https://github.com/romelperez/yrel)
 [![license](https://img.shields.io/github/license/romelperez/yrel.svg?maxAge=2592000)](https://github.com/romelperez/yrel/blob/main/LICENSE)
 
-~2kB JSON schema validation with TypeScript type inference.
+~2kB JavaScript JSON schema validation with TypeScript type inference.
+
+A very lightweight alternative to [zod](https://npmjs.com/package/zod) or [yup](https://npmjs.com/package/yup).
+
+## Install
+
+For any ESM and CommonJS JavaScript environment. If TypeScript is used, version 4.5+ is required.
+
+```bash
+npm install yrel
+```
+
+## Basic Usage
+
+```ts
+import { v, validate } from 'yrel'
+
+const schema = v.object({
+  name: v.string().min(2),
+  age: v.number().gte(18)
+})
+
+const data = {
+  name: 'romel',
+  age: 21
+}
+
+const validation = validate(schema, data)
+
+console.log(validation.isValid) // true
+console.log(validation.data) // { name: 'romel', age: 21 }
+console.log(validation.issues) // []
+```
+
+`validation.data` is just passed from the received data with the type of the schema
+if it is valid. Otherwise, it would be `undefined`.
+
+## Type Inference
+
+```ts
+import { v, type InferDataSchemaType } from 'yrel'
+
+const schema = v.object({
+  name: v.string().min(2).max(100),
+  age: v.number().gte(18).lte(150).optional(),
+  pets: v.array(v.string()).min(2).max(10)
+})
+
+type Schema = InferDataSchemaType<typeof schema>
+/*
+{
+  name: string;
+  age?: number | undefined;
+  pets: string[]
+}
+*/
+
+const data = {
+  name: 'romel',
+  age: 21,
+  pets: ['dog', 'cat']
+} satisfies Schema
+```
+
+## Error Handling
+
+Yrel provides a set of validators with predefined error codes for the error report.
+
+```ts
+import { v, validate } from 'yrel'
+
+const schema = v.object({
+  name: v.string().min(2),
+  age: v.number().gte(18)
+})
+
+const validation = validate(schema, {
+  name: true,
+  age: 12
+})
+
+console.log(validation.isValid) // false
+console.log(validation.data) // undefined
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "name",
+    "errors": [
+      ["err_string"]
+    ]
+  },
+  {
+    "key": "age",
+    "errors": [
+      ["err_number_gte", { "gte": 18 }]
+    ]
+  }
+]
+*/
+```
+
+The report error `key` is a string with the path to the schema which reported
+the error joined by dots. For arrays and tuples, the item index is used.
+
+```ts
+import { v, validate } from 'yrel'
+
+const schema = v.object({
+  users: v.array(
+    v.object({
+      name: v.string(),
+      pets: v.array(v.string())
+    })
+  )
+})
+const validation = validate(schema, {
+  users: [
+    { name: 'a', pets: [] },
+    { name: 'b', pets: ['cat', 100, 'dog', true] }
+  ]
+})
+
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "users.1.pets.1",
+    "errors": [
+      ["err_string"]
+    ]
+  },
+  {
+    "key": "users.1.pets.3",
+    "errors": [
+      ["err_string"]
+    ]
+  }
+]
+*/
+```
+
+If the error is in the root schema, the key is an empty string.
+
+```ts
+import { v, validate } from 'yrel'
+
+const schema = v.string()
+const validation = validate(schema, 100)
+
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "",
+    "errors": [
+      ["err_string"]
+    ]
+  }
+]
+*/
+```
+
+## Custom Validators
+
+All schemas support the `.validate(value => DataValidation)` method to add custom
+validators. They must return either `true` or a list of errors. Every error is tuple
+with the predefined error code and the according parameters if applicable.
+
+Validators libraries such as [validator](https://npmjs.com/package/validator) can
+be used for more custom validations.
+
+```ts
+import { v, validate, type DataValidation } from 'yrel'
+import isEmail from 'validator/lib/isEmail'
+
+const validateEmail = (value: string): DataValidation =>
+  isEmail(String(value)) || [['err_string_email']]
+
+const schema = v.object({
+  name: v.string().min(2),
+  age: v.number().gte(18),
+  email: v.string().validate(validateEmail)
+})
+
+const validation = validate(schema, {
+  name: 'romel',
+  age: 18,
+  email: 'romel@example'
+})
+
+console.log(validation.isValid) // false
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "email",
+    "errors": [
+      ["err_string_email"]
+    ]
+  }
+]
+*/
+```
+
+Yrel comes with a predefined list of errors with possible extra parameters for
+the error report. The following is a list of them. If the type to the right is `undefined`
+it says that it does not require parameters.
+
+- `err_unknown: undefined`
+- `err_boolean: undefined`
+- `err_boolean_truthy: undefined`
+- `err_number: undefined`
+- `err_number_gt: [{ gt: number }]`
+- `err_number_gte: [{ gte: number }]`
+- `err_number_lt: [{ lt: number }]`
+- `err_number_lte: [{ lte: number }]`
+- `err_number_integer: undefined`
+- `err_number_currency: undefined`
+- `err_string: undefined`
+- `err_string_nonempty: undefined`
+- `err_string_trim: undefined`
+- `err_string_length: [{ length: number }]`
+- `err_string_min: [{ min: number }]`
+- `err_string_max: [{ max: number }]`
+- `err_string_date_time: undefined`
+- `err_string_date: undefined`
+- `err_string_time: undefined`
+- `err_string_lowercase: undefined`
+- `err_string_uppercase: undefined`
+- `err_string_capitalcase: undefined`
+- `err_string_email: undefined`
+- `err_string_credit_card: undefined`
+- `err_string_url: undefined`
+- `err_string_uuid: undefined`
+- `err_literal: [{ literal: boolean | number | string }]`
+- `err_array: undefined`
+- `err_array_nonempty: undefined`
+- `err_array_length: [{ length: number }]`
+- `err_array_min: [{ min: number }]`
+- `err_array_max: [{ max: number }]`
+- `err_union: undefined`
+- `err_tuple: undefined`
+- `err_object: undefined`
+- `err_object_unexpected_props: [{ props: string[] }]`
+
+One error with parameters can be the `err_number_gte` which requires the parameter
+`gte: number`, so the report may be `['err_number_gte', { gte: 18 }]`.
+
+## Custom Error Reports
+
+Validators can return custom error reports. They need to be expressed as a tuple
+`['err_custom', string, object?]`.
+
+```ts
+import { v, validate, type DataValidation } from 'yrel'
+
+// Check that the string has the format "xxx-xxx".
+const validateUserId = (value: string): DataValidation =>
+  (/^\w{3,3}-\w{3,3}$/).test(value) || [['err_custom', 'my_custom_error_invalid_user_id']]
+
+const schema = v.object({
+  id: v.string().validate(validateUserId),
+  name: v.string().min(2),
+  age: v.number().gte(18),
+  pets: v.array(
+    v.union(
+      [v.literal('dog'), v.literal('cat'), v.literal('parrot')],
+      { errors: [['err_custom', 'my_custom_error_invalid_pet']] }
+    )
+  )
+})
+
+const validation = validate(schema, {
+  id: 'abc-d',
+  name: 'romel',
+  age: 18,
+  pets: ['cat', 'monkey', 'dog', 'fish']
+})
+
+console.log(validation.isValid) // false
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "id",
+    "errors": [
+      ["err_custom", "my_custom_error_invalid_user_id"]
+    ]
+  },
+  {
+    "key": "pets.1",
+    "errors": [
+      ["err_custom", "my_custom_error_invalid_pet"]
+    ]
+  },
+  {
+    "key": "pets.3",
+    "errors": [
+      ["err_custom", "my_custom_error_invalid_pet"]
+    ]
+  }
+]
+*/
+```
+
+## Schema Detection
+
+```ts
+import { v, isSchema } from 'yrel'
+
+const fakeSchema = {}
+const validSchema = v.string()
+
+console.log(isSchema(fakeSchema)) // false
+console.log(isSchema(validSchema)) // true
+```
