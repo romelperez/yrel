@@ -15,7 +15,7 @@ import type {
 
 // Validation and Error Handling
 
-export interface DataErrorTranslations {
+export type DataErrorTranslations = {
   err_unknown: undefined
   err_boolean: undefined
   err_boolean_truthy: undefined
