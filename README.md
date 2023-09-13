@@ -71,6 +71,36 @@ const data = {
 } satisfies Schema
 ```
 
+## Optional and Nullable
+
+All schemas can be optional and/or nullable.
+
+```ts
+const schema = v.string().optional()
+type Schema = InferDataSchemaType<typeof schema> // string | undefined
+```
+
+```ts
+const schema = v.number().nullable()
+type Schema = InferDataSchemaType<typeof schema> // number | null
+```
+
+```ts
+const schema = v.object({
+  name: v.string().optional(),
+  age: v.number().nullable(),
+  is_married: v.boolean().optional().nullable()
+})
+type Schema = InferDataSchemaType<typeof schema>
+/*
+{
+  name?: string | undefined
+  age: number | null
+  is_married?: boolean | undefined | null
+}
+*/
+```
+
 ## Error Handling
 
 Yrel provides a set of validators with predefined error codes for the error report.
@@ -324,3 +354,157 @@ const validSchema = v.string()
 console.log(isSchema(fakeSchema)) // false
 console.log(isSchema(validSchema)) // true
 ```
+
+## API
+
+### `v.any(): DataSchemaAny`
+
+Any kind of value.
+
+### `v.boolean(): DataSchemaBoolean`
+
+Boolean values.
+
+#### `.truthy()`
+
+Only `true` values.
+
+### `v.number(): DataSchemaNumber`
+
+Numeric and finite numbers.
+
+#### `.gt(value: number)`
+
+A number greater than the defined value.
+
+#### `.gte(value: number)`
+
+A number greater than or equal to the defined value.
+
+#### `.lt(value: number)`
+
+A number less than the defined value.
+
+#### `.lte(value: number)`
+
+A number less than or equal to the defined value.
+
+#### `.integer()`
+
+A safe integer number.
+
+### `v.string(): DataSchemaString`
+
+A string value.
+
+#### `.nonempty()`
+
+Non empty string.
+
+#### `.trim()`
+
+A string without spaces at the beginning or end.
+
+#### `.length(value: number)`
+
+A string with specified length.
+
+#### `.min(value: number)`
+
+A string with at least the specified length.
+
+#### `.max(value: number)`
+
+A string with at most the specified length.
+
+#### `.datetime(value: number)`
+
+A valid datetime string in ISO 8601 format. e.g. `2050-10-25T14:45:30.370Z`.
+
+#### `.date(value: number)`
+
+A valid date string fragment of the ISO 8601 format. e.g. `2050-10-25`.
+
+#### `.time(value: number)`
+
+A valid time string fragment of the ISO 8601 format. e.g. `14:45:30.370`.
+
+#### `.lowercase()`
+
+A string in lowercase.
+
+#### `.uppercase()`
+
+A string in uppercase.
+
+#### `.capitalcase()`
+
+A string in capital case allowing any uppercase characters such as `Abc Def` or `ABc DEF`.
+
+### `v.literal(value: boolean | number | string): DataSchemaLiteral`
+
+A literal primitive value.
+
+### `v.array(schema: DataSchema)`
+
+An array of the specified schema.
+
+#### `.nonempty()`
+
+Non empty arrays.
+
+#### `.length(value: number)`
+
+An array of the specified length.
+
+#### `.min(value: number)`
+
+An array of at least the specified length.
+
+#### `.max(value: number)`
+
+An array of at most the specified length.
+
+### `v.union(schemas: [DataSchema, ...DataSchema[]]): DataSchemaUnion`
+
+A value that matches one of the specified schemas.
+
+```ts
+const schema = v.union([
+  v.number(),
+  v.literal('cat'),
+  v.literal('dog'),
+  v.literal('parrot')
+])
+// number | 'cat' | 'dog' | 'parrot'
+```
+
+### `v.tuple(schemas: [DataSchema, ...DataSchema[]]): DataSchemaTuple`
+
+An array with fixed number of elements and each of them with a specific data schema.
+
+```ts
+const schema = v.tuple([
+  v.number(),
+  v.string(),
+  v.boolean().optional()
+])
+// [number, string, boolean | undefined]
+```
+
+### `v.object(shape: Record<string, DataSchema>): DataSchemaTuple`
+
+A plain object and each property with the specified data schema.
+
+```ts
+const schema = v.object({
+  name: v.string(),
+  age: v.number()
+})
+// { name: string; age: number; }
+```
+
+#### `.passthrough()`
+
+By default the object data schema will report an error if the validated object contains
+unexpected properties which are not defined in the schema shape. This will disable the error.
