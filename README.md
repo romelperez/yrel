@@ -9,7 +9,7 @@
 [![github stars](https://img.shields.io/github/stars/romelperez/yrel.svg?style=social&label=stars)](https://github.com/romelperez/yrel)
 [![license](https://img.shields.io/github/license/romelperez/yrel.svg?maxAge=2592000)](https://github.com/romelperez/yrel/blob/main/LICENSE)
 
-~2kB JavaScript JSON schema validation with TypeScript type inference.
+~3kB JavaScript JSON schema validation with TypeScript type inference.
 
 A very lightweight alternative to [zod](https://npmjs.com/package/zod) or [yup](https://npmjs.com/package/yup).
 
