@@ -4,6 +4,7 @@
 
 [![version](https://img.shields.io/npm/v/yrel.svg)](https://npmjs.org/package/yrel)
 [![tests](https://github.com/romelperez/yrel/workflows/tests/badge.svg)](https://github.com/romelperez/yrel/actions)
+[![codefactor](https://www.codefactor.io/repository/github/romelperez/yrel/badge)](https://www.codefactor.io/repository/github/romelperez/yrel)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/yrel.svg)](https://bundlephobia.com/package/yrel)
 [![downloads](https://img.shields.io/npm/dm/yrel.svg)](https://npmjs.org/package/yrel)
 [![github stars](https://img.shields.io/github/stars/romelperez/yrel.svg?style=social&label=stars)](https://github.com/romelperez/yrel)
