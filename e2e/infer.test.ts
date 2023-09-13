@@ -1,6 +1,5 @@
 import { describe, test } from 'vitest'
-
-import { type InferDataSchemaType, v } from './index'
+import { type InferDataSchemaType, v } from '../'
 
 test('any()', () => {
   const schema = v.any()

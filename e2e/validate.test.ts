@@ -1,6 +1,5 @@
 import { describe, test, expect } from 'vitest'
-
-import { v, validate } from './index'
+import { v, validate } from '../'
 
 describe('plain schema', () => {
   test('valid', () => {

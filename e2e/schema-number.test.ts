@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest'
-
-import { v, processSchema } from './index'
+import { v, processSchema } from '../'
 
 test('initial', () => {
   const schema = v.number()

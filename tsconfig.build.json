@@ -1,4 +1,3 @@
 {
-  "extends": "./tsconfig.base.json",
-  "exclude": ["node_modules", "build", "vite.config.ts", "**/*.test.ts"]
+  "extends": "./tsconfig.base.json"
 }
