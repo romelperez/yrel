@@ -31,7 +31,7 @@
   "types": "./build/esm/index.d.ts",
   "module": "./build/esm/index.js",
   "main": "./build/cjs/index.js",
-  "unpkg": "./build/umd/yrel.min.js",
+  "unpkg": "./build/umd/yrel.umd.cjs",
   "devDependencies": {
     "@build-script/typescript-transformer-append-js-extension": "^1.0.9",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
@@ -53,7 +53,7 @@
     "build": "npm run build-esm && npm run build-cjs && npm run build-umd",
     "build-esm": "sh ./scripts/build-esm.sh",
     "build-cjs": "sh ./scripts/build-cjs.sh",
-    "build-umd": "npx vite build",
+    "build-umd": "vite build",
     "lint": "eslint ./src/**/*.ts",
     "lint-fix": "eslint ./src/**/*.ts --fix",
     "test": "vitest",
