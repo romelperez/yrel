@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "~3kB JavaScript JSON schema validation with TypeScript type inference.",
+  "description": "~2.3kB JavaScript JSON schema validation with TypeScript type inference.",
   "keywords": [
     "typescript",
     "data-validation",
