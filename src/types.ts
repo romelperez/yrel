@@ -1,5 +1,8 @@
 /* eslint-disable no-use-before-define */
 
+// TODO: Modularize TypeScript InferDataSchemaType functions for performance.
+// See https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
+
 import type {
   SCHEMA,
   SCHEMA_ANY,

@@ -20,6 +20,18 @@ For any ESM and CommonJS JavaScript environment. If TypeScript is used, version 
 npm install yrel
 ```
 
+For UMD version:
+
+```ts
+import { v } from 'yrel/build/umd/yrel.umd.cjs'
+```
+
+```html
+<!-- WIth CDNs. -->
+<script src="https://cdn.jsdelivr.net/npm/yrel/build/umd/yrel.umd.cjs" />
+<script src="https://unpkg.com/yrel/build/umd/yrel.umd.cjs" />
+```
+
 ## Basic Usage
 
 ```ts
@@ -31,14 +43,14 @@ const schema = v.object({
 })
 
 const data = {
-  name: 'romel',
+  name: 'yrel',
   age: 21
 }
 
 const validation = validate(schema, data)
 
 console.log(validation.isValid) // true
-console.log(validation.data) // { name: 'romel', age: 21 }
+console.log(validation.data) // { name: 'yrel', age: 21 }
 console.log(validation.issues) // []
 ```
 
@@ -66,7 +78,7 @@ type Schema = InferDataSchemaType<typeof schema>
 */
 
 const data = {
-  name: 'romel',
+  name: 'yrel',
   age: 21,
   pets: ['dog', 'cat']
 } satisfies Schema
@@ -201,6 +213,8 @@ console.log(validation.issues)
 */
 ```
 
+A custom root key can be configured too with `validate(schema, data, { rootKey: 'root' })`.
+
 ## Custom Validators
 
 All schemas support the `.validate(value => DataValidation)` method to add custom
@@ -224,9 +238,9 @@ const schema = v.object({
 })
 
 const validation = validate(schema, {
-  name: 'romel',
+  name: 'yrel',
   age: 18,
-  email: 'romel@example'
+  email: 'yrel@example'
 })
 
 console.log(validation.isValid) // false
@@ -243,7 +257,7 @@ console.log(validation.issues)
 */
 ```
 
-Yrel comes with a predefined list of errors with possible extra parameters for
+Yrel comes with a predefined list of error codes with possible extra parameters for
 the error report. The following is a list of them. If the type to the right is `undefined`
 it says that it does not require parameters.
 
@@ -313,7 +327,7 @@ const schema = v.object({
 
 const validation = validate(schema, {
   id: 'abc-d',
-  name: 'romel',
+  name: 'yrel',
   age: 18,
   pets: ['cat', 'monkey', 'dog', 'fish']
 })
@@ -362,9 +376,17 @@ console.log(isSchema(validSchema)) // true
 
 Any kind of value.
 
+```ts
+const schema = v.any() // any
+```
+
 ### `v.boolean(): DataSchemaBoolean`
 
 Boolean values.
+
+```ts
+const schema = v.boolean() // boolean
+```
 
 #### `.truthy()`
 
@@ -373,6 +395,10 @@ Only `true` values.
 ### `v.number(): DataSchemaNumber`
 
 Numeric and finite numbers.
+
+```ts
+const schema = v.number() // number
+```
 
 #### `.gt(value: number)`
 
@@ -397,6 +423,10 @@ A safe integer number.
 ### `v.string(): DataSchemaString`
 
 A string value.
+
+```ts
+const schema = v.string() // string
+```
 
 #### `.nonempty()`
 
@@ -446,9 +476,17 @@ A string in capital case allowing any uppercase characters such as `Abc Def` or 
 
 A literal primitive value.
 
+```ts
+const schema = v.literal('cat') // 'cat'
+```
+
 ### `v.array(schema: DataSchema)`
 
 An array of the specified schema.
+
+```ts
+const schema = v.array(v.string()) // string[]
+```
 
 #### `.nonempty()`
 
