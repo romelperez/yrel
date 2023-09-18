@@ -210,7 +210,7 @@ export interface DataSchemaArray<
 }
 
 export interface DataSchemaUnion<
-  Structures extends [DataSchema, ...DataSchema[]] = [DataSchema],
+  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
   Data extends unknown | undefined | null = InferDataSchemaType<Structures[number]>
 > extends DataSchema<Data> {
   __name: typeof SCHEMA_UNION

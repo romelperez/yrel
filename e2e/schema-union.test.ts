@@ -14,7 +14,7 @@ test('empty schemas', () => {
   ;[undefined, null, []].forEach((params) => {
     expect(() => {
       v.union(params as any)
-    }).toThrowError('Data validator .union([...schemas]) requires at least one schema definition.')
+    }).toThrowError('Data validator .union([...schemas]) requires schema definitions.')
   })
 })
 

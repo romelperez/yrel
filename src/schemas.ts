@@ -343,11 +343,11 @@ const createDataSchemaArray = <
 }
 
 const createDataSchemaUnion = <
-  Structures extends [DataSchema, ...DataSchema[]] = [DataSchema],
+  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
   Data extends unknown | undefined | null = InferDataSchemaType<Structures[number]>
 >(structures: Structures, config?: DataValidationInSchemaConfig, schemaBase?: DataSchema): DataSchemaUnion<Structures, Data> => {
   if (!structures || !structures.length) {
-    throw new Error('Data validator .union([...schemas]) requires at least one schema definition.')
+    throw new Error('Data validator .union([...schemas]) requires schema definitions.')
   }
 
   return createSchemaFactory<DataSchema, DataSchemaUnion<Structures, Data>>({
