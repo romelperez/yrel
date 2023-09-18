@@ -27,8 +27,10 @@ import { v } from 'yrel/build/umd/yrel.umd.cjs'
 ```
 
 ```html
-<!-- WIth CDNs. -->
 <script src="https://cdn.jsdelivr.net/npm/yrel/build/umd/yrel.umd.cjs" />
+```
+
+```html
 <script src="https://unpkg.com/yrel/build/umd/yrel.umd.cjs" />
 ```
 
