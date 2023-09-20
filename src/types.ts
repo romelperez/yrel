@@ -208,7 +208,7 @@ export interface DataSchemaArray<
 
 export interface DataSchemaUnion<
   Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
-  Data extends unknown | undefined | null = InferDataSchemaType<Structures[number]>
+  Data = InferDataSchemaType<Structures[number]>
 > extends DataSchema<Data> {
   __name: typeof SCHEMA_UNION
   optional: () => DataSchemaUnion<Structures, Data | undefined>
@@ -228,17 +228,17 @@ export interface DataSchemaTuple<
 }
 
 export interface DataSchemaObject<
-  Structure extends Record<string, DataSchema> = Record<string, DataSchema>,
+  Shape extends Record<string, DataSchema> = Record<string, DataSchema>,
   Data extends Record<string, unknown> | undefined | null = {
-    [P in keyof Structure]: InferDataSchemaType<Structure[P]>
+    [P in keyof Shape]: InferDataSchemaType<Shape[P]>
   }
 > extends DataSchema<Data> {
   __name: typeof SCHEMA_OBJECT
-  shape: Structure
-  optional: () => DataSchemaObject<Structure, Data | undefined>
-  nullable: () => DataSchemaObject<Structure, Data | null>
-  passthrough: () => DataSchemaObject<Structure, Data>
-  validate: (validate: DataValidator<Data>) => DataSchemaObject<Structure, Data>
+  shape: Shape
+  optional: () => DataSchemaObject<Shape, Data | undefined>
+  nullable: () => DataSchemaObject<Shape, Data | null>
+  passthrough: () => DataSchemaObject<Shape, Data>
+  validate: (validate: DataValidator<Data>) => DataSchemaObject<Shape, Data>
 }
 
 export interface DataSchemaAny<Data = unknown> extends DataSchema<Data> {
@@ -248,45 +248,65 @@ export interface DataSchemaAny<Data = unknown> extends DataSchema<Data> {
 
 // Utilities
 
-type InferTupleType<Structures extends [DataSchema, ...DataSchema[]]> = {
-  [Index in keyof Structures]: Structures[Index] extends DataSchema
-    ? InferDataSchemaType<Structures[Index]>
-    : never
-}
-
-export type InferDataSchemaType<Schema extends DataSchema | DataSchema[]> =
+type InferArrayType<Schema extends DataSchemaArray> =
   Schema extends DataSchemaArray<infer Structure, infer Data>
     ?
       | Array<InferDataSchemaType<Structure>>
       | (undefined extends Data ? undefined : never) // .optional()
       | (null extends Data ? null : never) // .nullable()
-    : Schema extends DataSchemaUnion<infer Structures, infer Data>
-      ?
-        | InferDataSchemaType<Structures[number]>
-        | (undefined extends Data ? undefined : never) // .optional()
-        | (null extends Data ? null : never) // .nullable()
-      : Schema extends DataSchemaTuple<infer Structures, infer RestStructure, infer Data>
-        ?
-          | (RestStructure extends DataSchema
-            ? [...InferTupleType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
-            : InferTupleType<Structures>)
-          | (undefined extends Data ? undefined : never) // .optional()
-          | (null extends Data ? null : never) // .nullable()
-        : Schema extends DataSchemaObject<infer Structure, infer Data>
-          ?
-            | ({
-            // Required properties.
-              [X in keyof Structure as undefined extends InferDataSchemaType<Structure[X]>
-                ? never
-                : X]: InferDataSchemaType<Structure[X]>
-            } & {
-            // Optional properties.
-              [X in keyof Structure as undefined extends InferDataSchemaType<Structure[X]>
-                ? X
-                : never]?: InferDataSchemaType<Structure[X]>
-            })
-            | (undefined extends Data ? undefined : never) // .optional()
-            | (null extends Data ? null : never) // .nullable()
+    : never
+
+type InferUnionType<Schema extends DataSchemaUnion> =
+  Schema extends DataSchemaUnion<infer Structures, infer Data>
+    ?
+      | InferDataSchemaType<Structures[number]>
+      | (undefined extends Data ? undefined : never) // .optional()
+      | (null extends Data ? null : never) // .nullable()
+    : never
+
+type InferTupleListType<Structures extends [DataSchema, ...DataSchema[]]> = {
+  [Index in keyof Structures]: Structures[Index] extends DataSchema
+    ? InferDataSchemaType<Structures[Index]>
+    : never
+}
+
+type InferTupleType<Schema extends DataSchemaTuple> =
+  Schema extends DataSchemaTuple<infer Structures, infer RestStructure, infer Data>
+    ?
+      | (RestStructure extends DataSchema
+        ? [...InferTupleListType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
+        : InferTupleListType<Structures>)
+      | (undefined extends Data ? undefined : never) // .optional()
+      | (null extends Data ? null : never) // .nullable()
+    : never
+
+type InferObjectType<Schema extends DataSchemaObject> =
+  Schema extends DataSchemaObject<infer Shape, infer Data>
+    ?
+      | ({
+        // Required properties.
+        [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]>
+          ? never
+          : X]: InferDataSchemaType<Shape[X]>
+      } & {
+        // Optional properties.
+        [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]>
+          ? X
+          : never]?: InferDataSchemaType<Shape[X]>
+      })
+      | (undefined extends Data ? undefined : never) // .optional()
+      | (null extends Data ? null : never) // .nullable()
+    : never
+
+export type InferDataSchemaType<Schema extends DataSchema | DataSchema[]> =
+  Schema extends DataSchemaArray<any, any>
+    ? InferArrayType<Schema>
+    : Schema extends DataSchemaUnion<any, any>
+      ? InferUnionType<Schema>
+      : Schema extends DataSchemaTuple<any, any, any>
+        ? InferTupleType<Schema>
+        : Schema extends DataSchemaObject<any, any>
+          ? InferObjectType<Schema>
           : Schema extends DataSchema[]
             ? {
                 [Index in keyof Schema]: Schema[Index] extends DataSchema

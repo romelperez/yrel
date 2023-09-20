@@ -1,3 +1,6 @@
+// TODO: Fix object union types.
+// TODO: Fix object with all optional properties.
+// TODO: Rename all types to prefix Yrel.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add `.record(key, value)` data schema.
@@ -350,7 +353,7 @@ const createDataSchemaArray = <
 
 const createDataSchemaUnion = <
   Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
-  Data extends unknown | undefined | null = InferDataSchemaType<Structures[number]>
+  Data = InferDataSchemaType<Structures[number]>
 >(structures: Structures, config?: DataValidationInSchemaConfig, schemaBase?: DataSchema): DataSchemaUnion<Structures, Data> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .union([...schemas]) requires schema definitions.')
@@ -419,12 +422,12 @@ const createDataSchemaTuple = <
 }
 
 const createDataSchemaObject = <
-  Structure extends Record<string, DataSchema> = Record<string, DataSchema>,
+  Shape extends Record<string, DataSchema> = Record<string, DataSchema>,
   Data extends Record<string, unknown> | undefined | null = {
-    [P in keyof Structure]: InferDataSchemaType<Structure[P]>
+    [P in keyof Shape]: InferDataSchemaType<Shape[P]>
   }
->(structure: Structure, schemaBase?: DataSchema): DataSchemaObject<Structure, Data> => {
-  return createSchemaFactory<DataSchema, DataSchemaObject<Structure, Data>>({
+>(structure: Shape, schemaBase?: DataSchema): DataSchemaObject<Shape, Data> => {
+  return createSchemaFactory<DataSchema, DataSchemaObject<Shape, Data>>({
     schemaBase,
     name: SCHEMA_OBJECT,
     resolver: (data, cache, context) => {
@@ -438,7 +441,7 @@ const createDataSchemaObject = <
         return { key: context.key, isValid: false, errors: [['err_object']], children: [] }
       }
 
-      const structureKeys = Object.keys(structure) as Array<keyof Structure>
+      const structureKeys = Object.keys(structure) as Array<keyof Shape>
       const dataKeys = Object.keys(data) as Array<keyof Data>
 
       // Check for unexpected object props.
@@ -460,7 +463,7 @@ const createDataSchemaObject = <
 
       const children = structureKeys.map((itemKey) => {
         const itemSchema = structure[itemKey]
-        const itemData = (data as Record<keyof Structure, unknown>)[itemKey]
+        const itemData = (data as Record<keyof Shape, unknown>)[itemKey]
         const key = context.key ? `${context.key}.${String(itemKey)}` : String(itemKey)
         return processSchema(itemSchema, itemData, { key })
       })
