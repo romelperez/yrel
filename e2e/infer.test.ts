@@ -712,4 +712,58 @@ describe('recursive', () => {
     // @ts-expect-error test
     ;({ id: 'a', users: [{ name: 'a', age: 1, pets: [{}] }] }) satisfies Schema
   })
+
+  test('array / union / literals', () => {
+    const schema = v.array(v.union([v.literal('cat'), v.literal('dog')]))
+    type Schema = InferDataSchemaType<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    // @ts-expect-error test
+    ;({}) satisfies Schema
+    ;[] satisfies Schema
+    ;['cat', 'dog'] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
+
+  test('object / union / literals', () => {
+    const schema = v.object({
+      fullName: v.string(),
+      pets: v.union([v.literal('cat'), v.literal('dog')])
+    })
+    type Schema = InferDataSchemaType<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    // @ts-expect-error test
+    ;({}) satisfies Schema
+    // @ts-expect-error test
+    ;({ fullName: 'yrel', pets: undefined }) satisfies Schema
+    // @ts-expect-error test
+    ;({ fullName: 'yrel', pets: null }) satisfies Schema
+    ;({ fullName: 'yrel', pets: 'cat' }) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
 })
