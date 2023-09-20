@@ -1,3 +1,4 @@
+// TODO: Add object .shape property with the shape provided.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add `.record(key, value)` data schema.
