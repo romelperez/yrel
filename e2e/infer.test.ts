@@ -378,7 +378,7 @@ describe('array', () => {
 
 describe('union()', () => {
   test('union(schemas)', () => {
-    const schema = v.union([v.string(), v.number()])
+    const schema = v.union([v.number(), v.literal('cat'), v.literal('dog')])
     type Schema = InferDataSchemaType<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
@@ -389,7 +389,10 @@ describe('union()', () => {
     // @ts-expect-error test
     false satisfies Schema
     10 satisfies Schema
+    // @ts-expect-error test
     'a' satisfies Schema
+    'cat' satisfies Schema
+    'dog' satisfies Schema
     // @ts-expect-error test
     ;({}) satisfies Schema
     // @ts-expect-error test
