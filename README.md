@@ -559,7 +559,7 @@ const schema = v.tuple([
 // [number, string, boolean | undefined]
 ```
 
-### `v.object(shape: Record<string, DataSchema>): DataSchemaTuple`
+### `v.object(shape: Record<string, DataSchema>): DataSchemaObject`
 
 A plain object and each property with the specified data schema.
 
@@ -570,6 +570,10 @@ const schema = v.object({
 })
 // { name: string; age: number; }
 ```
+
+#### `.shape`
+
+The object shape structure.
 
 #### `.passthrough()`
 

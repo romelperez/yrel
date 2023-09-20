@@ -1,9 +1,9 @@
-// TODO: Add object .shape property with the shape provided.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add `.record(key, value)` data schema.
 // TODO: Add coercion functionalities.
 // TODO: Add tuple optional elements as possibly missing type.
+// TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
 
 import {
   SCHEMA,
@@ -55,11 +55,12 @@ const createSchemaFactory = <
       schemaBase: SchemaBase | null | undefined
       name: DataSchema['__name']
       resolver: DataResolver
+      properties?: Partial<Properties>
       validators?: Validators
       narrowers?: Narrowers
     }
   ): SchemaExtension => {
-  const { name, resolver, validators, narrowers } = props
+  const { name, resolver, properties, validators, narrowers } = props
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const schemaBase = props.schemaBase ?? ({} as SchemaBase)
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -88,6 +89,10 @@ const createSchemaFactory = <
   schemaBase.__resolvers.push(resolver)
 
   schemaBase.__validators = Array.isArray(__validators) ? [...__validators] : []
+
+  if (properties) {
+    Object.assign(schemaBase, properties)
+  }
 
   // Common validators.
   schemaBase.validate = (validate) => {
@@ -463,6 +468,9 @@ const createDataSchemaObject = <
       const isValid = children.every((child) => child.isValid)
 
       return { key: context.key, isValid, errors: [], children }
+    },
+    properties: {
+      shape: structure
     },
     narrowers: {
       passthrough: (schema) => () => {

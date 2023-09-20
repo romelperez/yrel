@@ -101,3 +101,9 @@ test('validate()', () => {
     errors: [['err_custom', 'passwords_do_not_match']]
   })
 })
+
+test('shape', () => {
+  const shape = { name: v.string(), age: v.number() }
+  const schema = v.object(shape)
+  expect(shape).toBe(schema.shape)
+})

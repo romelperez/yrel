@@ -1,8 +1,5 @@
 /* eslint-disable no-use-before-define */
 
-// TODO: Modularize TypeScript InferDataSchemaType functions for performance.
-// See https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
-
 import type {
   SCHEMA,
   SCHEMA_ANY,
@@ -237,6 +234,7 @@ export interface DataSchemaObject<
   }
 > extends DataSchema<Data> {
   __name: typeof SCHEMA_OBJECT
+  shape: Structure
   optional: () => DataSchemaObject<Structure, Data | undefined>
   nullable: () => DataSchemaObject<Structure, Data | null>
   passthrough: () => DataSchemaObject<Structure, Data>
