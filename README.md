@@ -506,7 +506,7 @@ An array of at least the specified length.
 
 An array of at most the specified length.
 
-### `v.union(schemas: [DataSchema, ...DataSchema[]]): DataSchemaUnion`
+### `v.union(schemas: [DataSchema, DataSchema, ...DataSchema[]]): DataSchemaUnion`
 
 A value that matches one of the specified schemas.
 
@@ -518,6 +518,32 @@ const schema = v.union([
   v.literal('parrot')
 ])
 // number | 'cat' | 'dog' | 'parrot'
+```
+
+For dynamically created union of literals, the dynamic types can be set like:
+
+```ts
+import { type DataSchemaLiteral } from 'yrel'
+
+type Languages = 'en' | 'es' | 'fr' | 'hi' | 'zh'
+const languages: Languages = ['en', 'es', 'fr', 'hi', 'zh']
+
+const schema = v.union<
+  // Types for the list of schemas, since it requires at least two.
+  // It can be an array of any kind of Yrel schema as required.
+  [
+    DataSchemaLiteral<Languages>,
+    DataSchemaLiteral<Languages>
+  ],
+  // Type of the actual data.
+  // This will be the data type inferred.
+  Languages
+>(
+  languages.map(lang => v.literal(lang)) as [
+    DataSchemaLiteral<Languages>,
+    DataSchemaLiteral<Languages>
+  ]
+)
 ```
 
 ### `v.tuple(schemas: [DataSchema, ...DataSchema[]]): DataSchemaTuple`
