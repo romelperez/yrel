@@ -48,15 +48,17 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "clean": "rm -rf ./build",
+    "clean": "rm -rf ./build && rm -f .tsbuildinfo",
     "build": "npm run build-esm && npm run build-cjs && npm run build-umd",
     "build-esm": "sh ./scripts/build-esm.sh",
     "build-cjs": "sh ./scripts/build-cjs.sh",
     "build-umd": "vite build",
+    "dev": "sh ./scripts/build-esm.sh --watch",
     "lint": "eslint ./src/**/*.ts",
     "lint-fix": "eslint ./src/**/*.ts --fix",
+    "typecheck": "vitest typecheck",
     "test": "vitest",
-    "integration": "npm run clean && npm run build && npm run lint && npm run test -- --run",
+    "integration": "npm run clean && npm run build && npm run lint && npm run typecheck -- --run && npm run test -- --run",
     "prepublishOnly": "npm run integration"
   }
 }
