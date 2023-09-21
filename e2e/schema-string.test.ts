@@ -180,6 +180,19 @@ test('capitalcase()', () => {
   })
 })
 
+test('capitalcase({ lower: true })', () => {
+  const schema = y.string().capitalcase({ lower: true })
+  ;['A', 'Abc', 'Áei Óu', 'Abc Def'].forEach((data) => {
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
+  })
+  ;['a', 'abc', 'áei óu', 'aBc', 'aBC', 'ABc DEF', 'ABC DEF'].forEach((data) => {
+    expect(processYrel(schema, data)).toMatchObject({
+      isValid: false,
+      errors: [['err_string_capitalcase']]
+    })
+  })
+})
+
 test('validator with custom configuration', () => {
   const schema = y.string().date({ errors: [['err_custom', 'xyz', 10]] })
   expect(processYrel(schema, '2000-10-10')).toMatchObject({ isValid: true })

@@ -480,9 +480,11 @@ A string in lowercase.
 
 A string in uppercase.
 
-#### `.capitalcase()`
+#### `.capitalcase(conf?: { lower?: boolean })`
 
-A string in capital case allowing any uppercase characters such as `Abc Def` or `ABc DEF`.
+A string in capital case. By default, it allows any uppercase characters such as `Abc Def`
+or `ABc DEF`. If `.capitalcase({ lower: true })` is defined, it will only accept lowercase
+chactaters for non-first letters such as `Abc Def`.
 
 ### `y.literal(value: boolean | number | string): YrelSchemaLiteral`
 

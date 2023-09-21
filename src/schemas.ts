@@ -1,4 +1,3 @@
-// TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add `.record(key, value)` data schema.
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add coercion functionalities.
@@ -273,10 +272,11 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
         if (typeof data !== 'string') return []
         return data === data.toUpperCase() || [['err_string_uppercase']]
       },
-      capitalcase: () => (data) => {
+      capitalcase: (conf?: { lower?: boolean }) => (data) => {
         if (typeof data !== 'string') return []
+        const baseString = conf?.lower ? data.toLowerCase() : data
         return (
-          data === data.replace(/(?:^|\s|["'([{])+\S/g, (match) => match.toUpperCase()) || [
+          data === baseString.replace(/(?:^|\s|["'([{])+\S/g, (match) => match.toUpperCase()) || [
             ['err_string_capitalcase']
           ]
         )

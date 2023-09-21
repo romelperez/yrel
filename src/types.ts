@@ -191,7 +191,7 @@ export interface YrelSchemaString extends YrelSchema<string> {
   time: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   lowercase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   uppercase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
-  capitalcase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
+  capitalcase: YrelValidatorInSchemaWrapper<(conf?: { lower?: boolean }) => YrelSchemaString>
 }
 
 // Literals have no default generic values.
