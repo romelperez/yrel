@@ -617,6 +617,31 @@ describe('object()', () => {
     ;(() => {}) satisfies Schema
   })
 
+  test('object(schema) with only optional parameters', () => {
+    const schema = v.object({
+      x: v.string().optional(),
+      y: v.number().optional()
+    })
+    type Schema = InferDataSchemaType<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    ;({}) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
+
   test('object(schema).optional()', () => {
     const schema = v.object({ x: v.string() }).optional()
     type Schema = InferDataSchemaType<typeof schema>

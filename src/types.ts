@@ -276,26 +276,38 @@ type InferTupleListType<Structures extends [DataSchema, ...DataSchema[]]> = {
 
 type InferTupleType<Schema extends DataSchemaTuple> =
   Schema extends DataSchemaTuple<infer Structures, infer RestStructure>
-    ?
-      | (RestStructure extends DataSchema
-        ? [...InferTupleListType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
-        : InferTupleListType<Structures>)
+    ? RestStructure extends DataSchema
+      ? [...InferTupleListType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
+      : InferTupleListType<Structures>
+    : never
+
+type InferObjectOptionalPropsType<Schema extends DataSchemaObject> =
+  Schema extends DataSchemaObject<infer Shape>
+    ? {
+        [X in keyof Shape]: undefined extends InferDataSchemaType<Shape[X]> ? true : never
+      }[keyof Shape]
+    : never
+
+type InferObjectNonOptionalPropsType<Schema extends DataSchemaObject> =
+  Schema extends DataSchemaObject<infer Shape>
+    ? {
+        [X in keyof Shape]: undefined extends InferDataSchemaType<Shape[X]> ? never : true
+      }[keyof Shape]
     : never
 
 type InferObjectType<Schema extends DataSchemaObject> =
   Schema extends DataSchemaObject<infer Shape>
-    ?
-      | ({
-        // Required properties.
-        [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]>
-          ? never
-          : X]: InferDataSchemaType<Shape[X]>
-      } & {
-        // Optional properties.
-        [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]>
-          ? X
-          : never]?: InferDataSchemaType<Shape[X]>
-      })
+    ? true extends InferObjectOptionalPropsType<Schema>
+      ? true extends InferObjectNonOptionalPropsType<Schema>
+        ? ({
+            // Required properties.
+            [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]> ? never : X]: InferDataSchemaType<Shape[X]>
+          } & {
+            // Optional properties.
+            [X in keyof Shape as undefined extends InferDataSchemaType<Shape[X]> ? X : never]?: InferDataSchemaType<Shape[X]>
+          })
+        : { [X in keyof Shape]?: InferDataSchemaType<Shape[X]> }
+      : { [X in keyof Shape]: InferDataSchemaType<Shape[X]> }
     : never
 
 export type InferDataSchemaType<Schema extends DataSchema | DataSchema[]> =

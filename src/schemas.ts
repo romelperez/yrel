@@ -1,5 +1,4 @@
-// TODO: Fix object union types.
-// TODO: Fix object with all optional properties.
+// TODO: Test string validation with optional empty string.
 // TODO: Rename all types to prefix Yrel.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
