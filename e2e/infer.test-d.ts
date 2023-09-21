@@ -686,6 +686,74 @@ describe('object()', () => {
     ;(() => {}) satisfies Schema
   })
 })
+describe('record()', () => {
+  test('record(schema)', () => {
+    const schema = y.record(y.string(), y.array(y.number()))
+    type Schema = InferYrel<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    ;({}) satisfies Schema
+    ;({ a: [], b: [1, 2, 3] }) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
+
+  test('record(schema).optional()', () => {
+    const schema = y.record(y.string(), y.array(y.number())).optional()
+    type Schema = InferYrel<typeof schema>
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    ;({}) satisfies Schema
+    ;({ a: [], b: [1, 2, 3] }) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
+
+  test('record(schema).nullable()', () => {
+    const schema = y.record(y.string(), y.array(y.number())).nullable()
+    type Schema = InferYrel<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    ;({}) satisfies Schema
+    ;({ a: [], b: [1, 2, 3] }) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
+})
 
 describe('recursive', () => {
   test('array / object / array', () => {

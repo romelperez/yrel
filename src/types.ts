@@ -12,7 +12,8 @@ import type {
   YREL_ARRAY,
   YREL_UNION,
   YREL_TUPLE,
-  YREL_OBJECT
+  YREL_OBJECT,
+  YREL_RECORD
 } from './constants'
 
 // Validation and Error Handling
@@ -39,7 +40,7 @@ export type YrelErrorTranslations = {
   err_string_time: undefined
   err_string_lowercase: undefined
   err_string_uppercase: undefined
-  err_string_capitalcase: undefined
+  err_string_capitalcase: [{ lower: boolean }]
   err_string_email: undefined
   err_string_credit_card: undefined
   err_string_url: undefined
@@ -54,6 +55,8 @@ export type YrelErrorTranslations = {
   err_tuple: undefined
   err_object: undefined
   err_object_unexpected_props: [{ props: string[] }]
+  err_record: undefined
+  err_record_keys: [{ keys: string[] }]
 }
 
 export type YrelError =
@@ -115,6 +118,7 @@ export interface YrelSchema<Data = any> {
   | typeof YREL_UNION
   | typeof YREL_TUPLE
   | typeof YREL_OBJECT
+  | typeof YREL_RECORD
   /**
    * The data cache is an object which stores persistent configuration state of
    * the schema, such as if the schema data can be optional or not.
@@ -249,6 +253,16 @@ export interface YrelSchemaObject<
   nullable: () => YrelSchemaNullable<YrelSchemaObject<Shape>>
   passthrough: () => YrelSchemaObject<Shape>
   validate: (validate: YrelValidator<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
+}
+
+export interface YrelSchemaRecord<
+  Key extends YrelSchemaString,
+  Value extends YrelSchema
+> extends YrelSchema<Record<InferYrel<Key>, InferYrel<Value>>> {
+  __name: typeof YREL_RECORD
+  optional: () => YrelSchemaOptional<YrelSchemaRecord<Key, Value>>
+  nullable: () => YrelSchemaNullable<YrelSchemaRecord<Key, Value>>
+  validate: (validate: YrelValidator<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
 }
 
 export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {

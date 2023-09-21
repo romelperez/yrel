@@ -376,7 +376,7 @@ console.log(isSchema(validSchema)) // true
 
 ## API
 
-### `y.any(): DataSchemaAny`
+### `y.any(): YrelSchemaAny`
 
 Any kind of value.
 
@@ -384,7 +384,7 @@ Any kind of value.
 const schema = y.any() // any
 ```
 
-### `y.boolean(): DataSchemaBoolean`
+### `y.boolean(): YrelSchemaBoolean`
 
 Boolean values.
 
@@ -396,7 +396,7 @@ const schema = y.boolean() // boolean
 
 Only `true` values.
 
-### `y.number(): DataSchemaNumber`
+### `y.number(): YrelSchemaNumber`
 
 Numeric and finite numbers.
 
@@ -424,7 +424,7 @@ A number less than or equal to the defined value.
 
 A safe integer number.
 
-### `y.string(): DataSchemaString`
+### `y.string(): YrelSchemaString`
 
 A string value.
 
@@ -436,8 +436,8 @@ To validateYrel an optional nonempty string validation, it can be done like this
 
 ```ts
 const schema = y.union([y.string().date(), y.literal('')])
-validateYrel(schema, '2000-10-10') // is valid
-validateYrel(schema, '') // is valid
+validateYrel(schema, '2000-10-10') // valid
+validateYrel(schema, '') // valid
 ```
 
 #### `.nonempty()`
@@ -494,7 +494,7 @@ A literal primitive value.
 const schema = y.literal('cat') // 'cat'
 ```
 
-### `y.array(schema: DataSchema)`
+### `y.array(schema: YrelSchema)`
 
 An array of the specified schema.
 
@@ -518,7 +518,7 @@ An array of at least the specified length.
 
 An array of at most the specified length.
 
-### `y.union(schemas: [DataSchema, DataSchema, ...DataSchema[]]): DataSchemaUnion`
+### `y.union(schemas: [YrelSchema, YrelSchema, ...YrelSchema[]]): YrelSchemaUnion`
 
 A value that matches one of the specified schemas.
 
@@ -549,7 +549,7 @@ const schema = y.union<[YrelSchemaLiteral<Languages>, YrelSchemaLiteral<Language
 type Schema = InferYrel<typeof schema> // 'en' | 'es' | 'fr' | 'hi' | 'zh'
 ```
 
-### `y.tuple(schemas: [DataSchema, ...DataSchema[]]): DataSchemaTuple`
+### `y.tuple(schemas: [YrelSchema, ...YrelSchema[]]): YrelSchemaTuple`
 
 An array with fixed number of elements and each of them with a specific data schema.
 
@@ -562,7 +562,7 @@ const schema = y.tuple([
 // [number, string, boolean | undefined]
 ```
 
-### `y.object(shape: Record<string, DataSchema>): DataSchemaObject`
+### `y.object(shape: Record<string, YrelSchema>): YrelSchemaObject`
 
 A plain object and each property with the specified data schema.
 
@@ -582,6 +582,26 @@ The object shape structure.
 
 By default the object data schema will report an error if the validated object contains
 unexpected properties which are not defined in the schema shape. This will disable the error.
+
+### `y.record(key: YrelSchemaString, value: YrelSchema): YrelSchemaRecord`
+
+A plain object with a not specified number of properties. All object keys have to be
+string with `y.string()`.
+
+```ts
+const schema = y.record(y.string(), y.number())
+// { [key: string]: number }
+```
+
+To validate the record key:
+
+```ts
+const schema = y.record(y.string().date(), y.boolean())
+// { [name: string]: boolean }
+
+validateYrel(schema, { '2000': true, '2001': false }) // invalid
+validateYrel(schema, { '2000-10-10': true, '2000-10-11': false }) // valid
+```
 
 ## Logo
 

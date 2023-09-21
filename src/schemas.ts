@@ -1,6 +1,5 @@
-// TODO: Add `.record(key, value)` data schema.
-// TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add coercion functionalities.
+// TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add tuple optional elements as possibly missing type.
 // TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
 
@@ -14,10 +13,12 @@ import {
   YREL_ARRAY,
   YREL_UNION,
   YREL_TUPLE,
-  YREL_OBJECT
+  YREL_OBJECT,
+  YREL_RECORD
 } from './constants'
 import type {
   InferYrel,
+  YrelError,
   YrelResolution,
   YrelResolver,
   YrelValidationInSchemaConfig,
@@ -31,9 +32,16 @@ import type {
   YrelSchemaUnion,
   YrelSchemaTuple,
   YrelSchemaObject,
+  YrelSchemaRecord,
   YrelSchemaAny
 } from './types'
 import { processYrel } from './processYrel'
+
+const isObject = (data: unknown): boolean =>
+  data !== null &&
+  typeof data === 'object' &&
+  typeof data !== 'function' &&
+  !Array.isArray(data)
 
 const createSchemaFactory = <
   SchemaBase extends YrelSchema,
@@ -277,7 +285,7 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
         const baseString = conf?.lower ? data.toLowerCase() : data
         return (
           data === baseString.replace(/(?:^|\s|["'([{])+\S/g, (match) => match.toUpperCase()) || [
-            ['err_string_capitalcase']
+            ['err_string_capitalcase', { lower: !!conf?.lower }]
           ]
         )
       }
@@ -426,18 +434,12 @@ const createYrelSchemaObject = <
     schemaBase,
     name: YREL_OBJECT,
     resolver: (data, cache, context) => {
-      const isObject =
-        data !== null &&
-        typeof data === 'object' &&
-        typeof data !== 'function' &&
-        !Array.isArray(data)
-
-      if (!isObject) {
+      if (!isObject(data)) {
         return { key: context.key, isValid: false, errors: [['err_object']], children: [] }
       }
 
       const structureKeys = Object.keys(structure) as Array<keyof Shape>
-      const dataKeys = Object.keys(data) as Array<keyof Data>
+      const dataKeys = Object.keys(data as object) as Array<keyof Data>
 
       // Check for unexpected object props.
       // If a property is defined in data but not in structure, it is unexpected.
@@ -479,6 +481,43 @@ const createYrelSchemaObject = <
   })
 }
 
+const createYrelSchemaRecord = <
+  Key extends YrelSchemaString,
+  Value extends YrelSchema
+>(key: Key, value: Value, schemaBase?: YrelSchema): YrelSchemaRecord<Key, Value> => {
+  return createSchemaFactory<YrelSchema, YrelSchemaRecord<Key, Value>>({
+    schemaBase,
+    name: YREL_RECORD,
+    resolver: (data, cache, context) => {
+      if (!isObject(data)) {
+        return { key: context.key, isValid: false, errors: [['err_record']], children: [] }
+      }
+
+      const record = data as Record<string, unknown>
+      const itemsKeys = Object.keys(record)
+
+      const keysInvalid = itemsKeys.filter(itemKey => {
+        const validation = processYrel(key, itemKey)
+        return !validation.isValid
+      })
+
+      const children = itemsKeys.map(itemKey => {
+        const item = record[itemKey]
+        const contextKey = context.key ? `${context.key}.${String(itemKey)}` : String(itemKey)
+        return processYrel(value, item, { key: contextKey })
+      })
+
+      const isValid = !keysInvalid.length && children.every((child) => child.isValid)
+
+      const errors: YrelError[] = keysInvalid.length
+        ? [['err_record_keys', { keys: keysInvalid }]]
+        : []
+
+      return { key: context.key, isValid, errors, children }
+    }
+  })
+}
+
 const createYrelSchemaAny = (): YrelSchemaAny => {
   return createSchemaFactory<YrelSchema, YrelSchemaAny>({
     schemaBase: null,
@@ -501,7 +540,8 @@ const y = {
   array: createYrelSchemaArray,
   union: createYrelSchemaUnion,
   tuple: createYrelSchemaTuple,
-  object: createYrelSchemaObject
+  object: createYrelSchemaObject,
+  record: createYrelSchemaRecord
 }
 
 export { y }
