@@ -175,7 +175,7 @@ test('capitalcase()', () => {
   ;['a', 'abc', 'aBc', 'aBC'].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
-      errors: [['err_string_capitalcase']]
+      errors: [['err_string_capitalcase', { lower: false }]]
     })
   })
 })
@@ -188,7 +188,7 @@ test('capitalcase({ lower: true })', () => {
   ;['a', 'abc', 'áei óu', 'aBc', 'aBC', 'ABc DEF', 'ABC DEF'].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
-      errors: [['err_string_capitalcase']]
+      errors: [['err_string_capitalcase', { lower: true }]]
     })
   })
 })
