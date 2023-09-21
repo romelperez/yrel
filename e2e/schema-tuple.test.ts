@@ -1,15 +1,15 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('initial', () => {
-  const schema = v.tuple([v.string(), v.number()])
-  expect(processSchema(schema, ['a', 10])).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['b', 20])).toMatchObject({ isValid: true })
+  const schema = y.tuple([y.string(), y.number()])
+  expect(processYrel(schema, ['a', 10])).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['b', 20])).toMatchObject({ isValid: true })
   ;[undefined, null, true, false, 'a', 10, [], ['a'], [10], {}, () => {}].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: false, errors: [['err_tuple']] })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: false, errors: [['err_tuple']] })
   })
   // Same-length, non-valid values.
-  expect(processSchema(schema, ['a', 'a'])).toMatchObject({
+  expect(processYrel(schema, ['a', 'a'])).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -18,7 +18,7 @@ test('initial', () => {
       { key: '1', isValid: false, errors: [['err_number']], children: [] }
     ]
   })
-  expect(processSchema(schema, [10, 'a'])).toMatchObject({
+  expect(processYrel(schema, [10, 'a'])).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -28,12 +28,12 @@ test('initial', () => {
     ]
   })
   // Rest values.
-  expect(processSchema(schema, ['a', 10, 10])).toMatchObject({
+  expect(processYrel(schema, ['a', 10, 10])).toMatchObject({
     isValid: false,
     errors: [['err_tuple']],
     children: []
   })
-  expect(processSchema(schema, ['a', 10, 'a'])).toMatchObject({
+  expect(processYrel(schema, ['a', 10, 'a'])).toMatchObject({
     isValid: false,
     errors: [['err_tuple']],
     children: []
@@ -43,17 +43,17 @@ test('initial', () => {
 test('empty schemas', () => {
   ;[undefined, null, []].forEach((params) => {
     expect(() => {
-      v.tuple(params as any)
+      y.tuple(params as any)
     }).toThrowError('Data validator .tuple([...schemas]) requires at least one schema definition.')
   })
 })
 
 test('with rest', () => {
-  const schema = v.tuple([v.literal('a'), v.literal('b')], v.number())
-  expect(processSchema(schema, ['a', 'b'])).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['a', 'b', 10])).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['a', 'b', 10, 20, 30])).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['a', 'b', 'c'])).toMatchObject({
+  const schema = y.tuple([y.literal('a'), y.literal('b')], y.number())
+  expect(processYrel(schema, ['a', 'b'])).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['a', 'b', 10])).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['a', 'b', 10, 20, 30])).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['a', 'b', 'c'])).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -63,7 +63,7 @@ test('with rest', () => {
       { key: '2', isValid: false, errors: [['err_number']] }
     ]
   })
-  expect(processSchema(schema, ['a', 'b', {}, () => {}])).toMatchObject({
+  expect(processYrel(schema, ['a', 'b', {}, () => {}])).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -77,23 +77,23 @@ test('with rest', () => {
 })
 
 test('optional()', () => {
-  const schema = v.tuple([v.string(), v.number()]).optional()
-  expect(processSchema(schema, undefined)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['a', 10])).toMatchObject({ isValid: true })
+  const schema = y.tuple([y.string(), y.number()]).optional()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['a', 10])).toMatchObject({ isValid: true })
 })
 
 test('nullable()', () => {
-  const schema = v.tuple([v.string(), v.number()]).nullable()
-  expect(processSchema(schema, null)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['a', 10])).toMatchObject({ isValid: true })
+  const schema = y.tuple([y.string(), y.number()]).nullable()
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['a', 10])).toMatchObject({ isValid: true })
 })
 
 test('validate()', () => {
-  const schema = v
-    .tuple([v.string(), v.number()])
+  const schema = y
+    .tuple([y.string(), y.number()])
     .validate((data) => data[0] === 'a' || [['err_custom', 'XYZ']])
-  expect(processSchema(schema, ['a', 10])).toMatchObject({ isValid: true })
-  expect(processSchema(schema, ['b', 20])).toMatchObject({
+  expect(processYrel(schema, ['a', 10])).toMatchObject({ isValid: true })
+  expect(processYrel(schema, ['b', 20])).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'XYZ']]
   })

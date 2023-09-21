@@ -1,52 +1,53 @@
-// TODO: Rename all types to prefix Yrel.
+// TODO: Test any type.
+// TODO: Test isYrel tool.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add `.record(key, value)` data schema.
-// TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
+// TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add coercion functionalities.
 // TODO: Add tuple optional elements as possibly missing type.
 // TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
 
 import {
-  SCHEMA,
-  SCHEMA_ANY,
-  SCHEMA_BOOLEAN,
-  SCHEMA_NUMBER,
-  SCHEMA_STRING,
-  SCHEMA_LITERAL,
-  SCHEMA_ARRAY,
-  SCHEMA_UNION,
-  SCHEMA_TUPLE,
-  SCHEMA_OBJECT
+  YREL,
+  YREL_ANY,
+  YREL_BOOLEAN,
+  YREL_NUMBER,
+  YREL_STRING,
+  YREL_LITERAL,
+  YREL_ARRAY,
+  YREL_UNION,
+  YREL_TUPLE,
+  YREL_OBJECT
 } from './constants'
 import type {
-  InferDataSchemaType,
-  DataResolution,
-  DataResolver,
-  DataValidationInSchemaConfig,
-  DataValidator,
-  DataSchema,
-  DataSchemaBoolean,
-  DataSchemaNumber,
-  DataSchemaString,
-  DataSchemaLiteral,
-  DataSchemaArray,
-  DataSchemaUnion,
-  DataSchemaTuple,
-  DataSchemaObject,
-  DataSchemaAny
+  InferYrel,
+  YrelResolution,
+  YrelResolver,
+  YrelValidationInSchemaConfig,
+  YrelValidator,
+  YrelSchema,
+  YrelSchemaBoolean,
+  YrelSchemaNumber,
+  YrelSchemaString,
+  YrelSchemaLiteral,
+  YrelSchemaArray,
+  YrelSchemaUnion,
+  YrelSchemaTuple,
+  YrelSchemaObject,
+  YrelSchemaAny
 } from './types'
-import { processSchema } from './processSchema'
+import { processYrel } from './processYrel'
 
 const createSchemaFactory = <
-  SchemaBase extends DataSchema,
-  SchemaExtension extends DataSchema,
-  Properties = Omit<SchemaExtension, keyof DataSchema>,
+  SchemaBase extends YrelSchema,
+  SchemaExtension extends YrelSchema,
+  Properties = Omit<SchemaExtension, keyof YrelSchema>,
   Validators extends Record<string, unknown> = {
     [P in keyof Properties]?: (
       ...params: Properties[P] extends (...params: any[]) => any
         ? Parameters<Properties[P]>
         : [undefined?]
-    ) => DataValidator
+    ) => YrelValidator
   },
   Narrowers extends Record<string, unknown> = {
     [P in keyof Properties]?: (schema: SchemaExtension) => Properties[P]
@@ -54,8 +55,8 @@ const createSchemaFactory = <
 >(
     props: {
       schemaBase: SchemaBase | null | undefined
-      name: DataSchema['__name']
-      resolver: DataResolver
+      name: YrelSchema['__name']
+      resolver: YrelResolver
       properties?: Partial<Properties>
       validators?: Validators
       narrowers?: Narrowers
@@ -74,7 +75,7 @@ const createSchemaFactory = <
     delete schemaBase[key as keyof SchemaBase]
   }
 
-  schemaBase.__type = SCHEMA
+  schemaBase.__type = YREL
   schemaBase.__name = name
   schemaBase.__cache = __cache ?? {}
 
@@ -107,7 +108,7 @@ const createSchemaFactory = <
       const validator = validators[key] as any // TODO: Fix type.
 
       Object.assign(schemaBase, {
-        [key]: (...params: unknown[]): DataSchema => {
+        [key]: (...params: unknown[]): YrelSchema => {
           // Get the last parameter and all the parameters before it.
           const [config, ...paramsExtra] = [...params].reverse()
           const validateParamsWithoutConfig = paramsExtra.reverse()
@@ -122,7 +123,7 @@ const createSchemaFactory = <
 
           const validateParams = isConfigProvided ? validateParamsWithoutConfig : params
 
-          const validate: DataValidator = (data, cache) => {
+          const validate: YrelValidator = (data, cache) => {
             const result = validator(...validateParams)(data, cache)
             if (result === true) {
               return true
@@ -156,7 +157,7 @@ const createSchemaFactory = <
       const narrower = narrowers[key] as any // TODO: Fix type.
 
       Object.assign(schemaBase, {
-        [key]: (...params: unknown[]): DataSchema => narrower(schemaBase)(...params)
+        [key]: (...params: unknown[]): YrelSchema => narrower(schemaBase)(...params)
       })
     }
   }
@@ -164,10 +165,10 @@ const createSchemaFactory = <
   return schemaBase as unknown as SchemaExtension
 }
 
-const createDataSchemaBoolean = (schemaBase?: DataSchema): DataSchemaBoolean => {
-  return createSchemaFactory<DataSchema, DataSchemaBoolean>({
+const createYrelSchemaBoolean = (schemaBase?: YrelSchema): YrelSchemaBoolean => {
+  return createSchemaFactory<YrelSchema, YrelSchemaBoolean>({
     schemaBase,
-    name: SCHEMA_BOOLEAN,
+    name: YREL_BOOLEAN,
     resolver: (data, cache, context) => {
       if (typeof data === 'boolean') {
         return { key: context.key, isValid: true, errors: [], children: [] }
@@ -182,10 +183,10 @@ const createDataSchemaBoolean = (schemaBase?: DataSchema): DataSchemaBoolean => 
   })
 }
 
-const createDataSchemaNumber = (schemaBase?: DataSchema): DataSchemaNumber => {
-  return createSchemaFactory<DataSchema, DataSchemaNumber>({
+const createYrelSchemaNumber = (schemaBase?: YrelSchema): YrelSchemaNumber => {
+  return createSchemaFactory<YrelSchema, YrelSchemaNumber>({
     schemaBase,
-    name: SCHEMA_NUMBER,
+    name: YREL_NUMBER,
     resolver: (data, cache, context) => {
       if (typeof data === 'number' && !isNaN(data) && Number.isFinite(data)) {
         return { key: context.key, isValid: true, errors: [], children: [] }
@@ -217,10 +218,10 @@ const createDataSchemaNumber = (schemaBase?: DataSchema): DataSchemaNumber => {
   })
 }
 
-const createDataSchemaString = (schemaBase?: DataSchema): DataSchemaString => {
-  return createSchemaFactory<DataSchema, DataSchemaString>({
+const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
+  return createSchemaFactory<YrelSchema, YrelSchemaString>({
     schemaBase,
-    name: SCHEMA_STRING,
+    name: YREL_STRING,
     resolver: (data, cache, context) => {
       if (typeof data === 'string') {
         return { key: context.key, isValid: true, errors: [], children: [] }
@@ -286,13 +287,13 @@ const createDataSchemaString = (schemaBase?: DataSchema): DataSchemaString => {
   })
 }
 
-const createDataSchemaLiteral = <Data extends boolean | number | string>(
+const createYrelSchemaLiteral = <Data extends boolean | number | string>(
   literal: Data,
-  schemaBase?: DataSchema
-): DataSchemaLiteral<Data> => {
-  return createSchemaFactory<DataSchema, DataSchemaLiteral<Data>>({
+  schemaBase?: YrelSchema
+): YrelSchemaLiteral<Data> => {
+  return createSchemaFactory<YrelSchema, YrelSchemaLiteral<Data>>({
     schemaBase,
-    name: SCHEMA_LITERAL,
+    name: YREL_LITERAL,
     resolver: (data, cache, context) => {
       if (Object.is(data, literal)) {
         return { key: context.key, isValid: true, errors: [], children: [] }
@@ -307,12 +308,12 @@ const createDataSchemaLiteral = <Data extends boolean | number | string>(
   })
 }
 
-const createDataSchemaArray = <
-  Structure extends DataSchema = DataSchema
->(structure: Structure, schemaBase?: DataSchema): DataSchemaArray<Structure> => {
-  return createSchemaFactory<DataSchema, DataSchemaArray<Structure>>({
+const createYrelSchemaArray = <
+  Structure extends YrelSchema = YrelSchema
+>(structure: Structure, schemaBase?: YrelSchema): YrelSchemaArray<Structure> => {
+  return createSchemaFactory<YrelSchema, YrelSchemaArray<Structure>>({
     schemaBase,
-    name: SCHEMA_ARRAY,
+    name: YREL_ARRAY,
     resolver: (data, cache, context) => {
       if (!Array.isArray(data)) {
         return { key: context.key, isValid: false, errors: [['err_array']], children: [] }
@@ -320,7 +321,7 @@ const createDataSchemaArray = <
 
       const children = data.map((dataItem, index) => {
         const key = context.key ? `${context.key}.${index}` : String(index)
-        return processSchema(structure, dataItem, { key })
+        return processYrel(structure, dataItem, { key })
       })
 
       const isValid = children.every((child) => child.isValid)
@@ -348,19 +349,19 @@ const createDataSchemaArray = <
   })
 }
 
-const createDataSchemaUnion = <
-  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema]
->(structures: Structures, config?: DataValidationInSchemaConfig, schemaBase?: DataSchema): DataSchemaUnion<Structures> => {
+const createYrelSchemaUnion = <
+  Structures extends [YrelSchema, YrelSchema, ...YrelSchema[]] = [YrelSchema, YrelSchema]
+>(structures: Structures, config?: YrelValidationInSchemaConfig, schemaBase?: YrelSchema): YrelSchemaUnion<Structures> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .union([...schemas]) requires schema definitions.')
   }
 
-  return createSchemaFactory<DataSchema, DataSchemaUnion<Structures>>({
+  return createSchemaFactory<YrelSchema, YrelSchemaUnion<Structures>>({
     schemaBase,
-    name: SCHEMA_UNION,
+    name: YREL_UNION,
     resolver: (data, cache, context) => {
       for (const structure of structures) {
-        const resolution = processSchema(structure, data, context)
+        const resolution = processYrel(structure, data, context)
         if (resolution.isValid) {
           return { key: context.key, isValid: true, errors: [], children: [] }
         }
@@ -375,17 +376,17 @@ const createDataSchemaUnion = <
   })
 }
 
-const createDataSchemaTuple = <
-  Structures extends [DataSchema, ...DataSchema[]] = [DataSchema],
-  RestStructure extends DataSchema | undefined = undefined
->(structures: Structures, restStructure?: RestStructure, schemaBase?: DataSchema): DataSchemaTuple<Structures, RestStructure> => {
+const createYrelSchemaTuple = <
+  Structures extends [YrelSchema, ...YrelSchema[]] = [YrelSchema],
+  RestStructure extends YrelSchema | undefined = undefined
+>(structures: Structures, restStructure?: RestStructure, schemaBase?: YrelSchema): YrelSchemaTuple<Structures, RestStructure> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .tuple([...schemas]) requires at least one schema definition.')
   }
 
-  return createSchemaFactory<DataSchema, DataSchemaTuple<Structures, RestStructure>>({
+  return createSchemaFactory<YrelSchema, YrelSchemaTuple<Structures, RestStructure>>({
     schemaBase,
-    name: SCHEMA_TUPLE,
+    name: YREL_TUPLE,
     resolver: (data, cache, context) => {
       if (!Array.isArray(data) || (!restStructure && data.length !== structures.length)) {
         return { key: context.key, isValid: false, errors: [['err_tuple']], children: [] }
@@ -393,10 +394,10 @@ const createDataSchemaTuple = <
 
       const mainItemsResolutions = structures.map((structure, index) => {
         const key = context.key ? `${context.key}.${index}` : String(index)
-        return processSchema(structure, data[index], { key })
+        return processYrel(structure, data[index], { key })
       })
 
-      let restItemsResolutions: DataResolution[] = []
+      let restItemsResolutions: YrelResolution[] = []
 
       if (restStructure) {
         const restData = data.slice(structures.length)
@@ -404,7 +405,7 @@ const createDataSchemaTuple = <
         restItemsResolutions = restData.map((restItem, restItemIndex) => {
           const index = structures.length + restItemIndex
           const key = context.key ? `${context.key}.${index}` : String(index)
-          return processSchema(restStructure, restItem, { key })
+          return processYrel(restStructure, restItem, { key })
         })
       }
 
@@ -416,16 +417,16 @@ const createDataSchemaTuple = <
   })
 }
 
-const createDataSchemaObject = <
-  Shape extends Record<string, DataSchema> = Record<string, DataSchema>
->(structure: Shape, schemaBase?: DataSchema): DataSchemaObject<Shape> => {
+const createYrelSchemaObject = <
+  Shape extends Record<string, YrelSchema> = Record<string, YrelSchema>
+>(structure: Shape, schemaBase?: YrelSchema): YrelSchemaObject<Shape> => {
   type Data = {
-    [P in keyof Shape]: InferDataSchemaType<Shape[P]>
+    [P in keyof Shape]: InferYrel<Shape[P]>
   }
 
-  return createSchemaFactory<DataSchema, DataSchemaObject<Shape>>({
+  return createSchemaFactory<YrelSchema, YrelSchemaObject<Shape>>({
     schemaBase,
-    name: SCHEMA_OBJECT,
+    name: YREL_OBJECT,
     resolver: (data, cache, context) => {
       const isObject =
         data !== null &&
@@ -461,7 +462,7 @@ const createDataSchemaObject = <
         const itemSchema = structure[itemKey]
         const itemData = (data as Record<keyof Shape, unknown>)[itemKey]
         const key = context.key ? `${context.key}.${String(itemKey)}` : String(itemKey)
-        return processSchema(itemSchema, itemData, { key })
+        return processYrel(itemSchema, itemData, { key })
       })
 
       const isValid = children.every((child) => child.isValid)
@@ -480,10 +481,10 @@ const createDataSchemaObject = <
   })
 }
 
-const createDataSchemaAny = (): DataSchemaAny => {
-  return createSchemaFactory<DataSchema, DataSchemaAny>({
+const createYrelSchemaAny = (): YrelSchemaAny => {
+  return createSchemaFactory<YrelSchema, YrelSchemaAny>({
     schemaBase: null,
-    name: SCHEMA_ANY,
+    name: YREL_ANY,
     resolver: (data, cache, context) => ({
       key: context.key,
       isValid: true,
@@ -493,16 +494,16 @@ const createDataSchemaAny = (): DataSchemaAny => {
   })
 }
 
-const v = {
-  any: createDataSchemaAny,
-  boolean: createDataSchemaBoolean,
-  number: createDataSchemaNumber,
-  string: createDataSchemaString,
-  literal: createDataSchemaLiteral,
-  array: createDataSchemaArray,
-  union: createDataSchemaUnion,
-  tuple: createDataSchemaTuple,
-  object: createDataSchemaObject
+const y = {
+  any: createYrelSchemaAny,
+  boolean: createYrelSchemaBoolean,
+  number: createYrelSchemaNumber,
+  string: createYrelSchemaString,
+  literal: createYrelSchemaLiteral,
+  array: createYrelSchemaArray,
+  union: createYrelSchemaUnion,
+  tuple: createYrelSchemaTuple,
+  object: createYrelSchemaObject
 }
 
-export { v }
+export { y }

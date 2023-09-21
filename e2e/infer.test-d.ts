@@ -1,9 +1,9 @@
 import { describe, test } from 'vitest'
-import { type InferDataSchemaType, v } from '../'
+import { type InferYrel, y } from '../'
 
 test('any()', () => {
-  const schema = v.any()
-  type Schema = InferDataSchemaType<typeof schema>
+  const schema = y.any()
+  type Schema = InferYrel<typeof schema>
   undefined satisfies Schema
   null satisfies Schema
   true satisfies Schema
@@ -17,8 +17,8 @@ test('any()', () => {
 
 describe('boolean', () => {
   test('boolean()', () => {
-    const schema = v.boolean()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.boolean()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -38,8 +38,8 @@ describe('boolean', () => {
   })
 
   test('boolean().optional()', () => {
-    const schema = v.boolean().optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.boolean().optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -58,8 +58,8 @@ describe('boolean', () => {
   })
 
   test('boolean().nullable()', () => {
-    const schema = v.boolean().nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.boolean().nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -78,8 +78,8 @@ describe('boolean', () => {
   })
 
   test('boolean().optional().nullable()', () => {
-    const schema = v.boolean().optional().nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.boolean().optional().nullable()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     null satisfies Schema
     true satisfies Schema
@@ -99,8 +99,8 @@ describe('boolean', () => {
 
 describe('number', () => {
   test('number()', () => {
-    const schema = v.number()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.number()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -121,8 +121,8 @@ describe('number', () => {
   })
 
   test('number().optional()', () => {
-    const schema = v.number().optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.number().optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -142,8 +142,8 @@ describe('number', () => {
   })
 
   test('number().nullable()', () => {
-    const schema = v.number().nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.number().nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -165,8 +165,8 @@ describe('number', () => {
 
 describe('string', () => {
   test('string()', () => {
-    const schema = v.string()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.string()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -187,8 +187,8 @@ describe('string', () => {
   })
 
   test('string().optional()', () => {
-    const schema = v.string().optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.string().optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -208,8 +208,8 @@ describe('string', () => {
   })
 
   test('string().nullable()', () => {
-    const schema = v.string().nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.string().nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -231,8 +231,8 @@ describe('string', () => {
 
 describe('literal', () => {
   test('literal()', () => {
-    const schema = v.literal('hello')
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.literal('hello')
+    type Schema = InferYrel<typeof schema>
     'hello' satisfies Schema
     // @ts-expect-error test
     undefined satisfies Schema
@@ -255,8 +255,8 @@ describe('literal', () => {
   })
 
   test('literal().optional()', () => {
-    const schema = v.literal('world').optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.literal('world').optional()
+    type Schema = InferYrel<typeof schema>
     'world' satisfies Schema
     undefined satisfies Schema
     // @ts-expect-error test
@@ -278,8 +278,8 @@ describe('literal', () => {
   })
 
   test('literal().nullable()', () => {
-    const schema = v.literal('xxx').nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.literal('xxx').nullable()
+    type Schema = InferYrel<typeof schema>
     'xxx' satisfies Schema
     // @ts-expect-error test
     undefined satisfies Schema
@@ -303,8 +303,8 @@ describe('literal', () => {
 
 describe('array', () => {
   test('array(schema)', () => {
-    const schema = v.array(v.number())
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.array(y.number())
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -326,8 +326,8 @@ describe('array', () => {
   })
 
   test('array(schema).optional()', () => {
-    const schema = v.array(v.string()).optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.array(y.string()).optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -348,8 +348,8 @@ describe('array', () => {
   })
 
   test('array(schema).nullable()', () => {
-    const schema = v.array(v.string()).nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.array(y.string()).nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -370,8 +370,8 @@ describe('array', () => {
   })
 
   test('array(schema) recursive', () => {
-    const schema = v.array(v.array(v.array(v.string())))
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.array(y.array(y.array(y.string())))
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -397,8 +397,8 @@ describe('array', () => {
 
 describe('union()', () => {
   test('union(schemas)', () => {
-    const schema = v.union([v.number(), v.literal('cat'), v.literal('dog')])
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.union([y.number(), y.literal('cat'), y.literal('dog')])
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -421,8 +421,8 @@ describe('union()', () => {
   })
 
   test('union(schema).optional()', () => {
-    const schema = v.union([v.string(), v.number()]).optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.union([y.string(), y.number()]).optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -441,8 +441,8 @@ describe('union()', () => {
   })
 
   test('union(schema).nullable()', () => {
-    const schema = v.union([v.string(), v.number()]).nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.union([y.string(), y.number()]).nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -463,8 +463,8 @@ describe('union()', () => {
 
 describe('tuple()', () => {
   test('tuple(schemas)', () => {
-    const schema = v.tuple([v.string(), v.number()])
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.tuple([y.string(), y.number()])
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -495,8 +495,8 @@ describe('tuple()', () => {
   })
 
   test('tuple(schemas, ...rest)', () => {
-    const schema = v.tuple([v.string(), v.number()], v.boolean())
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.tuple([y.string(), y.number()], y.boolean())
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -531,8 +531,8 @@ describe('tuple()', () => {
   })
 
   test('tuple(schemas).optional()', () => {
-    const schema = v.tuple([v.string(), v.number()]).optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.tuple([y.string(), y.number()]).optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -562,8 +562,8 @@ describe('tuple()', () => {
   })
 
   test('tuple(schemas).nullable()', () => {
-    const schema = v.tuple([v.string(), v.number()]).nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.tuple([y.string(), y.number()]).nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -595,8 +595,8 @@ describe('tuple()', () => {
 
 describe('object()', () => {
   test('object(schema)', () => {
-    const schema = v.object({ x: v.string() })
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.object({ x: y.string() })
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -618,11 +618,11 @@ describe('object()', () => {
   })
 
   test('object(schema) with only optional parameters', () => {
-    const schema = v.object({
-      x: v.string().optional(),
-      y: v.number().optional()
+    const schema = y.object({
+      x: y.string().optional(),
+      y: y.number().optional()
     })
-    type Schema = InferDataSchemaType<typeof schema>
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -643,8 +643,8 @@ describe('object()', () => {
   })
 
   test('object(schema).optional()', () => {
-    const schema = v.object({ x: v.string() }).optional()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.object({ x: y.string() }).optional()
+    type Schema = InferYrel<typeof schema>
     undefined satisfies Schema
     // @ts-expect-error test
     null satisfies Schema
@@ -665,8 +665,8 @@ describe('object()', () => {
   })
 
   test('object(schema).nullable()', () => {
-    const schema = v.object({ x: v.string() }).nullable()
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.object({ x: y.string() }).nullable()
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     null satisfies Schema
@@ -689,15 +689,15 @@ describe('object()', () => {
 
 describe('recursive', () => {
   test('array / object / array', () => {
-    const schema = v.array(
-      v.object({
-        name: v.string(),
-        age: v.number(),
-        married: v.boolean().optional(),
-        pets: v.array(v.string()).optional()
+    const schema = y.array(
+      y.object({
+        name: y.string(),
+        age: y.number(),
+        married: y.boolean().optional(),
+        pets: y.array(y.string()).optional()
       })
     )
-    type Schema = InferDataSchemaType<typeof schema>
+    type Schema = InferYrel<typeof schema>
     ;[
       { name: 'a', age: 1 },
       { name: 'b', age: 2, married: true },
@@ -720,18 +720,18 @@ describe('recursive', () => {
   })
 
   test('object / array / object / array', () => {
-    const schema = v.object({
-      id: v.string(),
-      users: v.array(
-        v.object({
-          name: v.string(),
-          age: v.number(),
-          married: v.boolean().optional(),
-          pets: v.array(v.string()).optional()
+    const schema = y.object({
+      id: y.string(),
+      users: y.array(
+        y.object({
+          name: y.string(),
+          age: y.number(),
+          married: y.boolean().optional(),
+          pets: y.array(y.string()).optional()
         })
       )
     })
-    type Schema = InferDataSchemaType<typeof schema>
+    type Schema = InferYrel<typeof schema>
     ;({
       id: 'a',
       users: [
@@ -758,8 +758,8 @@ describe('recursive', () => {
   })
 
   test('array / union / literals', () => {
-    const schema = v.array(v.union([v.literal('cat'), v.literal('dog')]))
-    type Schema = InferDataSchemaType<typeof schema>
+    const schema = y.array(y.union([y.literal('cat'), y.literal('dog')]))
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test
@@ -781,11 +781,11 @@ describe('recursive', () => {
   })
 
   test('object / union / literals', () => {
-    const schema = v.object({
-      fullName: v.string(),
-      pets: v.union([v.literal('cat'), v.literal('dog')])
+    const schema = y.object({
+      fullName: y.string(),
+      pets: y.union([y.literal('cat'), y.literal('dog')])
     })
-    type Schema = InferDataSchemaType<typeof schema>
+    type Schema = InferYrel<typeof schema>
     // @ts-expect-error test
     undefined satisfies Schema
     // @ts-expect-error test

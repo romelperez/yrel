@@ -1,60 +1,60 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('initial', () => {
-  const schema = v.union([v.string(), v.number()])
-  expect(processSchema(schema, 'a')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
+  const schema = y.union([y.string(), y.number()])
+  expect(processYrel(schema, 'a')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
   ;[undefined, null, true, false, [], {}, () => {}].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: false, errors: [['err_union']] })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: false, errors: [['err_union']] })
   })
 })
 
 test('empty schemas', () => {
   ;[undefined, null, []].forEach((params) => {
     expect(() => {
-      v.union(params as any)
+      y.union(params as any)
     }).toThrowError('Data validator .union([...schemas]) requires schema definitions.')
   })
 })
 
 test('custom configuration', () => {
-  const schema = v.union([v.number(), v.string()], { errors: [['err_custom', 'xyz', 10]] })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, true)).toMatchObject({
+  const schema = y.union([y.number(), y.string()], { errors: [['err_custom', 'xyz', 10]] })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, true)).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'xyz', 10]]
   })
 })
 
 test('optional()', () => {
-  const schema = v.union([v.string(), v.number()]).optional()
-  expect(processSchema(schema, undefined)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 'a')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
+  const schema = y.union([y.string(), y.number()]).optional()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 'a')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
 })
 
 test('nullable()', () => {
-  const schema = v.union([v.string(), v.number()]).nullable()
-  expect(processSchema(schema, null)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 'a')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
+  const schema = y.union([y.string(), y.number()]).nullable()
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 'a')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
 })
 
 test('validate()', () => {
-  const schema = v
-    .union([v.string(), v.number()])
+  const schema = y
+    .union([y.string(), y.number()])
     .validate((data) => data === 'a' || [['err_custom', 'XYZ']])
-  expect(processSchema(schema, 'a')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({
+  expect(processYrel(schema, 'a')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'XYZ']]
   })
 })
 
 test('union nonempty validation with optional empty string', () => {
-  const schema = v.union([v.string().date(), v.literal('')])
-  expect(processSchema(schema, '2000-10-10')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, '')).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 'xxx')).toMatchObject({ isValid: false })
+  const schema = y.union([y.string().date(), y.literal('')])
+  expect(processYrel(schema, '2000-10-10')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, '')).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 'xxx')).toMatchObject({ isValid: false })
 })

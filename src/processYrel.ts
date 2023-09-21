@@ -1,15 +1,15 @@
-import type { DataSchema, DataResolution, DataResolverContext, DataError } from './types'
+import type { YrelSchema, YrelResolution, YrelResolverContext, YrelError } from './types'
 
-const processSchema = (
-  schema: DataSchema,
+const processYrel = (
+  schema: YrelSchema,
   data: unknown,
-  context?: DataResolverContext
-): DataResolution => {
+  context?: YrelResolverContext
+): YrelResolution => {
   const key = context?.key ?? ''
-  const errors: DataError[] = []
+  const errors: YrelError[] = []
 
   let isValid = true
-  let children: DataResolution[] = []
+  let children: YrelResolution[] = []
 
   try {
     for (const checker of schema.__checkers) {
@@ -47,4 +47,4 @@ const processSchema = (
   return { key, isValid, errors, children }
 }
 
-export { processSchema }
+export { processYrel }

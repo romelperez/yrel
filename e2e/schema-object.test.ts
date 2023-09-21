@@ -1,19 +1,19 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('initial', () => {
-  const schema = v.object({
-    name: v.string().min(2),
-    age: v.number().gte(18)
+  const schema = y.object({
+    name: y.string().min(2),
+    age: y.number().gte(18)
   })
-  expect(processSchema(schema, { name: 'romel', age: 21 })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, [1, 2, 3])).toMatchObject({
+  expect(processYrel(schema, { name: 'romel', age: 21 })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, [1, 2, 3])).toMatchObject({
     key: '',
     isValid: false,
     errors: [['err_object']],
     children: []
   })
-  expect(processSchema(schema, { name: 'romel', age: null })).toMatchObject({
+  expect(processYrel(schema, { name: 'romel', age: null })).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -22,7 +22,7 @@ test('initial', () => {
       { key: 'age', isValid: false, errors: [['err_number']], children: [] }
     ]
   })
-  expect(processSchema(schema, { name: 'r', age: 21 })).toMatchObject({
+  expect(processYrel(schema, { name: 'r', age: 21 })).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -31,7 +31,7 @@ test('initial', () => {
       { key: 'age', isValid: true, errors: [], children: [] }
     ]
   })
-  expect(processSchema(schema, { name: 'romel', age: 15 })).toMatchObject({
+  expect(processYrel(schema, { name: 'romel', age: 15 })).toMatchObject({
     key: '',
     isValid: false,
     errors: [],
@@ -41,7 +41,7 @@ test('initial', () => {
     ]
   })
   ;[undefined, null, true, false, 10, NaN, Infinity, 'a', [], () => {}].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       key: '',
       isValid: false,
       errors: [['err_object']],
@@ -51,59 +51,59 @@ test('initial', () => {
 })
 
 test('default filter unexpected props', () => {
-  const schema = v.object({ x: v.string(), y: v.number().optional() })
-  expect(processSchema(schema, { x: 'x' })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x', y: 10 })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x', w: 10 })).toMatchObject({
+  const schema = y.object({ x: y.string(), y: y.number().optional() })
+  expect(processYrel(schema, { x: 'x' })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x', y: 10 })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x', w: 10 })).toMatchObject({
     isValid: false,
     errors: [['err_object_unexpected_props', { props: ['w'] }]]
   })
-  expect(processSchema(schema, { x: 'x', w: 10, z: 20 })).toMatchObject({
+  expect(processYrel(schema, { x: 'x', w: 10, z: 20 })).toMatchObject({
     isValid: false,
     errors: [['err_object_unexpected_props', { props: ['w', 'z'] }]]
   })
 })
 
 test('passthrough()', () => {
-  const schema = v.object({ x: v.string(), y: v.number().optional() }).passthrough()
-  expect(processSchema(schema, { x: 'x' })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x', y: 10 })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x', w: 10 })).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x', w: 10, z: 20 })).toMatchObject({ isValid: true })
+  const schema = y.object({ x: y.string(), y: y.number().optional() }).passthrough()
+  expect(processYrel(schema, { x: 'x' })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x', y: 10 })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x', w: 10 })).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x', w: 10, z: 20 })).toMatchObject({ isValid: true })
 })
 
 test('optional()', () => {
-  const schema = v.object({ x: v.string() }).optional()
-  expect(processSchema(schema, undefined)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x' })).toMatchObject({ isValid: true })
+  const schema = y.object({ x: y.string() }).optional()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x' })).toMatchObject({ isValid: true })
 })
 
 test('nullable()', () => {
-  const schema = v.object({ x: v.string() }).nullable()
-  expect(processSchema(schema, null)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, { x: 'x' })).toMatchObject({ isValid: true })
+  const schema = y.object({ x: y.string() }).nullable()
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, { x: 'x' })).toMatchObject({ isValid: true })
 })
 
 test('validate()', () => {
-  const schema = v
+  const schema = y
     .object({
-      password: v.string(),
-      confirmation: v.string()
+      password: y.string(),
+      confirmation: y.string()
     })
     .validate(
       (data) => data.password === data.confirmation || [['err_custom', 'passwords_do_not_match']]
     )
-  expect(processSchema(schema, { password: 'abc', confirmation: 'abc' })).toMatchObject({
+  expect(processYrel(schema, { password: 'abc', confirmation: 'abc' })).toMatchObject({
     isValid: true
   })
-  expect(processSchema(schema, { password: 'abc', confirmation: 'xyz' })).toMatchObject({
+  expect(processYrel(schema, { password: 'abc', confirmation: 'xyz' })).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'passwords_do_not_match']]
   })
 })
 
 test('shape', () => {
-  const shape = { name: v.string(), age: v.number() }
-  const schema = v.object(shape)
+  const shape = { name: y.string(), age: y.number() }
+  const schema = y.object(shape)
   expect(shape).toBe(schema.shape)
 })

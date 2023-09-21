@@ -2,7 +2,7 @@
 
 # Yrel
 
-[![version](https://img.shields.io/npm/v/yrel.svg)](https://npmjs.org/package/yrel)
+[![version](https://img.shields.io/npm/y/yrel.svg)](https://npmjs.org/package/yrel)
 [![tests](https://github.com/romelperez/yrel/workflows/tests/badge.svg)](https://github.com/romelperez/yrel/actions)
 [![codefactor](https://www.codefactor.io/repository/github/romelperez/yrel/badge)](https://www.codefactor.io/repository/github/romelperez/yrel)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/yrel.svg)](https://bundlephobia.com/package/yrel)
@@ -23,7 +23,7 @@ npm install yrel
 For UMD version:
 
 ```ts
-import { v } from 'yrel/build/umd/yrel.umd.cjs'
+import { y } from 'yrel/build/umd/yrel.umd.cjs'
 ```
 
 ```html
@@ -37,11 +37,11 @@ import { v } from 'yrel/build/umd/yrel.umd.cjs'
 ## Basic Usage
 
 ```ts
-import { v, validate } from 'yrel'
+import { y, validateYrel } from 'yrel'
 
-const schema = v.object({
-  name: v.string().min(2),
-  age: v.number().gte(18)
+const schema = y.object({
+  name: y.string().min(2),
+  age: y.number().gte(18)
 })
 
 const data = {
@@ -49,7 +49,7 @@ const data = {
   age: 21
 }
 
-const validation = validate(schema, data)
+const validation = validateYrel(schema, data)
 
 console.log(validation.isValid) // true
 console.log(validation.data) // { name: 'yrel', age: 21 }
@@ -62,15 +62,15 @@ if it is valid. Otherwise, it would be `undefined`.
 ## Type Inference
 
 ```ts
-import { v, type InferDataSchemaType } from 'yrel'
+import { y, type InferYrel } from 'yrel'
 
-const schema = v.object({
-  name: v.string().min(2).max(100),
-  age: v.number().gte(18).lte(150).optional(),
-  pets: v.array(v.string()).min(2).max(10)
+const schema = y.object({
+  name: y.string().min(2).max(100),
+  age: y.number().gte(18).lte(150).optional(),
+  pets: y.array(y.string()).min(2).max(10)
 })
 
-type Schema = InferDataSchemaType<typeof schema>
+type Schema = InferYrel<typeof schema>
 /*
 {
   name: string;
@@ -91,22 +91,22 @@ const data = {
 All schemas can be optional and/or nullable.
 
 ```ts
-const schema = v.string().optional()
-type Schema = InferDataSchemaType<typeof schema> // string | undefined
+const schema = y.string().optional()
+type Schema = InferYrel<typeof schema> // string | undefined
 ```
 
 ```ts
-const schema = v.number().nullable()
-type Schema = InferDataSchemaType<typeof schema> // number | null
+const schema = y.number().nullable()
+type Schema = InferYrel<typeof schema> // number | null
 ```
 
 ```ts
-const schema = v.object({
-  name: v.string().optional(),
-  age: v.number().nullable(),
-  is_married: v.boolean().optional().nullable()
+const schema = y.object({
+  name: y.string().optional(),
+  age: y.number().nullable(),
+  is_married: y.boolean().optional().nullable()
 })
-type Schema = InferDataSchemaType<typeof schema>
+type Schema = InferYrel<typeof schema>
 /*
 {
   name?: string | undefined
@@ -116,19 +116,21 @@ type Schema = InferDataSchemaType<typeof schema>
 */
 ```
 
+The methods should be called at the end of schema definition.
+
 ## Error Handling
 
 Yrel provides a set of validators with predefined error codes for the error report.
 
 ```ts
-import { v, validate } from 'yrel'
+import { y, validateYrel } from 'yrel'
 
-const schema = v.object({
-  name: v.string().min(2),
-  age: v.number().gte(18)
+const schema = y.object({
+  name: y.string().min(2),
+  age: y.number().gte(18)
 })
 
-const validation = validate(schema, {
+const validation = validateYrel(schema, {
   name: true,
   age: 12
 })
@@ -158,17 +160,17 @@ The report error `key` is a string with the path to the schema which reported
 the error joined by dots. For arrays and tuples, the item index is used.
 
 ```ts
-import { v, validate } from 'yrel'
+import { y, validateYrel } from 'yrel'
 
-const schema = v.object({
-  users: v.array(
-    v.object({
-      name: v.string(),
-      pets: v.array(v.string())
+const schema = y.object({
+  users: y.array(
+    y.object({
+      name: y.string(),
+      pets: y.array(y.string())
     })
   )
 })
-const validation = validate(schema, {
+const validation = validateYrel(schema, {
   users: [
     { name: 'a', pets: [] },
     { name: 'b', pets: ['cat', 100, 'dog', true] }
@@ -197,10 +199,10 @@ console.log(validation.issues)
 If the error is in the root schema, the key is an empty string.
 
 ```ts
-import { v, validate } from 'yrel'
+import { y, validateYrel } from 'yrel'
 
-const schema = v.string()
-const validation = validate(schema, 100)
+const schema = y.string()
+const validation = validateYrel(schema, 100)
 
 console.log(validation.issues)
 /*
@@ -215,11 +217,11 @@ console.log(validation.issues)
 */
 ```
 
-A custom root key can be configured too with `validate(schema, data, { rootKey: 'root' })`.
+A custom root key can be configured too with `validateYrel(schema, data, { rootKey: 'root' })`.
 
 ## Custom Validators
 
-All schemas support the `.validate(value => DataValidation)` method to add custom
+All schemas support the `.validateYrel(value => YrelValidation)` method to add custom
 validators. They must return either `true` or a list of errors. Every error is tuple
 with the predefined error code and the according parameters if applicable.
 
@@ -227,19 +229,19 @@ Validators libraries such as [validator](https://npmjs.com/package/validator) ca
 be used for more custom validations.
 
 ```ts
-import { v, validate, type DataValidation } from 'yrel'
+import { y, validateYrel, type YrelValidation } from 'yrel'
 import isEmail from 'validator/lib/isEmail'
 
-const validateEmail = (value: string): DataValidation =>
+const validateEmail = (value: string): YrelValidation =>
   isEmail(String(value)) || [['err_string_email']]
 
-const schema = v.object({
-  name: v.string().min(2),
-  age: v.number().gte(18),
-  email: v.string().validate(validateEmail)
+const schema = y.object({
+  name: y.string().min(2),
+  age: y.number().gte(18),
+  email: y.string().validateYrel(validateEmail)
 })
 
-const validation = validate(schema, {
+const validation = validateYrel(schema, {
   name: 'yrel',
   age: 18,
   email: 'yrel@example'
@@ -309,25 +311,25 @@ Validators can return custom error reports. They need to be expressed as a tuple
 `['err_custom', string, object?]`.
 
 ```ts
-import { v, validate, type DataValidation } from 'yrel'
+import { y, validateYrel, type YrelValidation } from 'yrel'
 
 // Check that the string has the format "xxx-xxx".
-const validateUserId = (value: string): DataValidation =>
+const validateUserId = (value: string): YrelValidation =>
   (/^\w{3,3}-\w{3,3}$/).test(value) || [['err_custom', 'my_custom_error_invalid_user_id']]
 
-const schema = v.object({
-  id: v.string().validate(validateUserId),
-  name: v.string().min(2),
-  age: v.number().gte(18),
-  pets: v.array(
-    v.union(
-      [v.literal('dog'), v.literal('cat'), v.literal('parrot')],
+const schema = y.object({
+  id: y.string().validateYrel(validateUserId),
+  name: y.string().min(2),
+  age: y.number().gte(18),
+  pets: y.array(
+    y.union(
+      [y.literal('dog'), y.literal('cat'), y.literal('parrot')],
       { errors: [['err_custom', 'my_custom_error_invalid_pet']] }
     )
   )
 })
 
-const validation = validate(schema, {
+const validation = validateYrel(schema, {
   id: 'abc-d',
   name: 'yrel',
   age: 18,
@@ -363,10 +365,10 @@ console.log(validation.issues)
 ## Schema Detection
 
 ```ts
-import { v, isSchema } from 'yrel'
+import { y, isSchema } from 'yrel'
 
 const fakeSchema = {}
-const validSchema = v.string()
+const validSchema = y.string()
 
 console.log(isSchema(fakeSchema)) // false
 console.log(isSchema(validSchema)) // true
@@ -374,32 +376,32 @@ console.log(isSchema(validSchema)) // true
 
 ## API
 
-### `v.any(): DataSchemaAny`
+### `y.any(): DataSchemaAny`
 
 Any kind of value.
 
 ```ts
-const schema = v.any() // any
+const schema = y.any() // any
 ```
 
-### `v.boolean(): DataSchemaBoolean`
+### `y.boolean(): DataSchemaBoolean`
 
 Boolean values.
 
 ```ts
-const schema = v.boolean() // boolean
+const schema = y.boolean() // boolean
 ```
 
 #### `.truthy()`
 
 Only `true` values.
 
-### `v.number(): DataSchemaNumber`
+### `y.number(): DataSchemaNumber`
 
 Numeric and finite numbers.
 
 ```ts
-const schema = v.number() // number
+const schema = y.number() // number
 ```
 
 #### `.gt(value: number)`
@@ -422,20 +424,20 @@ A number less than or equal to the defined value.
 
 A safe integer number.
 
-### `v.string(): DataSchemaString`
+### `y.string(): DataSchemaString`
 
 A string value.
 
 ```ts
-const schema = v.string() // string
+const schema = y.string() // string
 ```
 
-To validate an optional nonempty string validation, it can be done like this:
+To validateYrel an optional nonempty string validation, it can be done like this:
 
 ```ts
-const schema = v.union([v.string().date(), v.literal('')])
-validate(schema, '2000-10-10') // is valid
-validate(schema, '') // is valid
+const schema = y.union([y.string().date(), y.literal('')])
+validateYrel(schema, '2000-10-10') // is valid
+validateYrel(schema, '') // is valid
 ```
 
 #### `.nonempty()`
@@ -482,20 +484,20 @@ A string in uppercase.
 
 A string in capital case allowing any uppercase characters such as `Abc Def` or `ABc DEF`.
 
-### `v.literal(value: boolean | number | string): DataSchemaLiteral`
+### `y.literal(value: boolean | number | string): YrelSchemaLiteral`
 
 A literal primitive value.
 
 ```ts
-const schema = v.literal('cat') // 'cat'
+const schema = y.literal('cat') // 'cat'
 ```
 
-### `v.array(schema: DataSchema)`
+### `y.array(schema: DataSchema)`
 
 An array of the specified schema.
 
 ```ts
-const schema = v.array(v.string()) // string[]
+const schema = y.array(y.string()) // string[]
 ```
 
 #### `.nonempty()`
@@ -514,16 +516,16 @@ An array of at least the specified length.
 
 An array of at most the specified length.
 
-### `v.union(schemas: [DataSchema, DataSchema, ...DataSchema[]]): DataSchemaUnion`
+### `y.union(schemas: [DataSchema, DataSchema, ...DataSchema[]]): DataSchemaUnion`
 
 A value that matches one of the specified schemas.
 
 ```ts
-const schema = v.union([
-  v.number(),
-  v.literal('cat'),
-  v.literal('dog'),
-  v.literal('parrot')
+const schema = y.union([
+  y.number(),
+  y.literal('cat'),
+  y.literal('dog'),
+  y.literal('parrot')
 ])
 // number | 'cat' | 'dog' | 'parrot'
 ```
@@ -531,50 +533,41 @@ const schema = v.union([
 For dynamically created union of literals, the dynamic types can be set like:
 
 ```ts
-import { type DataSchemaLiteral } from 'yrel'
+import { type YrelSchemaLiteral } from 'yrel'
 
 type Languages = 'en' | 'es' | 'fr' | 'hi' | 'zh'
-const languages: Languages = ['en', 'es', 'fr', 'hi', 'zh']
+const languages: Languages[] = ['en', 'es', 'fr', 'hi', 'zh']
 
-const schema = v.union<
-  // Types for the list of schemas, since it requires at least two.
-  // It can be an array of any kind of Yrel schema as required.
-  [
-    DataSchemaLiteral<Languages>,
-    DataSchemaLiteral<Languages>
-  ],
-  // Type of the actual data.
-  // This will be the data type inferred.
-  Languages
->(
-  languages.map(lang => v.literal(lang)) as [
-    DataSchemaLiteral<Languages>,
-    DataSchemaLiteral<Languages>
+const schema = y.union<[YrelSchemaLiteral<Languages>, YrelSchemaLiteral<Languages>]>(
+  languages.map(lang => y.literal(lang)) as [
+    YrelSchemaLiteral<Languages>,
+    YrelSchemaLiteral<Languages>
   ]
 )
+type Schema = InferYrel<typeof schema> // 'en' | 'es' | 'fr' | 'hi' | 'zh'
 ```
 
-### `v.tuple(schemas: [DataSchema, ...DataSchema[]]): DataSchemaTuple`
+### `y.tuple(schemas: [DataSchema, ...DataSchema[]]): DataSchemaTuple`
 
 An array with fixed number of elements and each of them with a specific data schema.
 
 ```ts
-const schema = v.tuple([
-  v.number(),
-  v.string(),
-  v.boolean().optional()
+const schema = y.tuple([
+  y.number(),
+  y.string(),
+  y.boolean().optional()
 ])
 // [number, string, boolean | undefined]
 ```
 
-### `v.object(shape: Record<string, DataSchema>): DataSchemaObject`
+### `y.object(shape: Record<string, DataSchema>): DataSchemaObject`
 
 A plain object and each property with the specified data schema.
 
 ```ts
-const schema = v.object({
-  name: v.string(),
-  age: v.number()
+const schema = y.object({
+  name: y.string(),
+  age: y.number()
 })
 // { name: string; age: number; }
 ```

@@ -1,17 +1,17 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('array / object / array', () => {
-  const schema = v.array(
-    v.object({
-      name: v.string(),
-      age: v.number(),
-      married: v.boolean().optional(),
-      pets: v.array(v.string()).optional()
+  const schema = y.array(
+    y.object({
+      name: y.string(),
+      age: y.number(),
+      married: y.boolean().optional(),
+      pets: y.array(y.string()).optional()
     })
   )
   expect(
-    processSchema(schema, [
+    processYrel(schema, [
       { name: 'a', age: 1 },
       { name: 'b', age: 2, married: true },
       { name: 'c', age: 3, married: false, pets: [] },
@@ -21,19 +21,19 @@ test('array / object / array', () => {
 })
 
 test('object / array / object / array', () => {
-  const schema = v.object({
-    id: v.string(),
-    users: v.array(
-      v.object({
-        name: v.string(),
-        age: v.number(),
-        married: v.boolean().optional(),
-        pets: v.array(v.string()).optional()
+  const schema = y.object({
+    id: y.string(),
+    users: y.array(
+      y.object({
+        name: y.string(),
+        age: y.number(),
+        married: y.boolean().optional(),
+        pets: y.array(y.string()).optional()
       })
     )
   })
   expect(
-    processSchema(schema, {
+    processYrel(schema, {
       id: 'a',
       users: [
         { name: 'a', age: 1 },

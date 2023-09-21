@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('initial', () => {
-  const schema = v.boolean()
+  const schema = y.boolean()
   ;[true, false].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[undefined, null, -10, 0, 10, NaN, Infinity, '', 'abc', {}, [], () => {}].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_boolean']]
     })
@@ -15,43 +15,43 @@ test('initial', () => {
 })
 
 test('optional()', () => {
-  const schema = v.boolean().optional()
-  expect(processSchema(schema, undefined)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, true)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, false)).toMatchObject({ isValid: true })
+  const schema = y.boolean().optional()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, false)).toMatchObject({ isValid: true })
 })
 
 test('nullable()', () => {
-  const schema = v.boolean().nullable()
-  expect(processSchema(schema, null)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, true)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, false)).toMatchObject({ isValid: true })
+  const schema = y.boolean().nullable()
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, false)).toMatchObject({ isValid: true })
 })
 
 test('validate()', () => {
-  const schema = v
+  const schema = y
     .boolean()
     .validate((data) => data || [['err_custom', 'Field is required.']])
-  expect(processSchema(schema, true)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, false)).toMatchObject({
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, false)).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'Field is required.']]
   })
 })
 
 test('truthy()', () => {
-  const schema = v.boolean().truthy()
-  expect(processSchema(schema, true)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, false)).toMatchObject({
+  const schema = y.boolean().truthy()
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, false)).toMatchObject({
     isValid: false,
     errors: [['err_boolean_truthy']]
   })
 })
 
 test('validator with custom configuration', () => {
-  const schema = v.boolean().truthy({ errors: [['err_custom', 'xyz', 10]] })
-  expect(processSchema(schema, true)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, false)).toMatchObject({
+  const schema = y.boolean().truthy({ errors: [['err_custom', 'xyz', 10]] })
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, false)).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'xyz', 10]]
   })

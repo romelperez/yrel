@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
-import { v, processSchema } from '../'
+import { y, processYrel } from '../'
 
 test('initial', () => {
-  const schema = v.number()
+  const schema = y.number()
   ;[-10, 0, 10].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[undefined, null, true, false, NaN, Infinity, '', 'abc', {}, [], () => {}].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number']]
     })
@@ -15,35 +15,35 @@ test('initial', () => {
 })
 
 test('optional()', () => {
-  const schema = v.number().optional()
-  expect(processSchema(schema, undefined)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
+  const schema = y.number().optional()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
 })
 
 test('nullable()', () => {
-  const schema = v.number().nullable()
-  expect(processSchema(schema, null)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 10)).toMatchObject({ isValid: true })
+  const schema = y.number().nullable()
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true })
 })
 
 test('validate()', () => {
-  const schema = v
+  const schema = y
     .number()
     .validate((data) => data === 7 || [['err_custom', 'A isValid 7 is required.']])
-  expect(processSchema(schema, 7)).toMatchObject({ isValid: true })
-  expect(processSchema(schema, 4)).toMatchObject({
+  expect(processYrel(schema, 7)).toMatchObject({ isValid: true })
+  expect(processYrel(schema, 4)).toMatchObject({
     isValid: false,
     errors: [['err_custom', 'A isValid 7 is required.']]
   })
 })
 
 test('gt(gt)', () => {
-  const schema = v.number().gt(10)
+  const schema = y.number().gt(10)
   ;[10.1, 11, 15, 20].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[-10, 0, 9, 10].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number_gt', { gt: 10 }]]
     })
@@ -51,12 +51,12 @@ test('gt(gt)', () => {
 })
 
 test('gte(gte)', () => {
-  const schema = v.number().gte(10)
+  const schema = y.number().gte(10)
   ;[10, 15, 20].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[-10, 0, 9].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number_gte', { gte: 10 }]]
     })
@@ -64,12 +64,12 @@ test('gte(gte)', () => {
 })
 
 test('lt(lt)', () => {
-  const schema = v.number().lt(10)
+  const schema = y.number().lt(10)
   ;[-10, 0, 9, 9.9].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[10, 15, 20].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number_lt', { lt: 10 }]]
     })
@@ -77,12 +77,12 @@ test('lt(lt)', () => {
 })
 
 test('lte(lte)', () => {
-  const schema = v.number().lte(10)
+  const schema = y.number().lte(10)
   ;[-10, 0, 10].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[11, 15, 20].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number_lte', { lte: 10 }]]
     })
@@ -90,12 +90,12 @@ test('lte(lte)', () => {
 })
 
 test('integer()', () => {
-  const schema = v.number().integer()
+  const schema = y.number().integer()
   ;[-10, 0, 10].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[-10.1, -1.3, 0.1, 15.42, 20.4422].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_number_integer']]
     })
@@ -103,12 +103,12 @@ test('integer()', () => {
 })
 
 test('validator with custom configuration', () => {
-  const schema = v.number().gt(10, { errors: [['err_custom', 'xyz', 10]] })
+  const schema = y.number().gt(10, { errors: [['err_custom', 'xyz', 10]] })
   ;[10.1, 11, 15, 20].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({ isValid: true })
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
   ;[-10, 0, 9, 10].forEach((data) => {
-    expect(processSchema(schema, data)).toMatchObject({
+    expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_custom', 'xyz', 10]]
     })
