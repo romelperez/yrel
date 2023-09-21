@@ -150,11 +150,20 @@ describe('nested schema', () => {
   })
 })
 
-test('coerce primitives', () => {
+test('coercing', () => {
   const schema = y.number().coerce().gte(100)
   const received = validateYrel(schema, '200')
   const expected = { isValid: true, issues: [], data: 200 }
   expect(received).toEqual(expected)
+})
+
+test('preprocessing', () => {
+  const schema = y.number().preprocess(data => Number(data) > 0 ? 1 : 0)
+  expect(validateYrel(schema, '-10')).toMatchObject({ isValid: true, data: 0 })
+  expect(validateYrel(schema, '-2')).toMatchObject({ isValid: true, data: 0 })
+  expect(validateYrel(schema, '0')).toMatchObject({ isValid: true, data: 0 })
+  expect(validateYrel(schema, '2')).toMatchObject({ isValid: true, data: 1 })
+  expect(validateYrel(schema, '10')).toMatchObject({ isValid: true, data: 1 })
 })
 
 test('Should allow to define a "rootKey" to report issues on root schema', () => {

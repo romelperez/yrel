@@ -21,6 +21,7 @@ import {
 import type {
   InferYrel,
   YrelError,
+  YrelPreprocessor,
   YrelResolution,
   YrelResolver,
   YrelValidationInSchemaConfig,
@@ -103,8 +104,16 @@ const createSchemaFactory = <
     Object.assign(schemaBase, properties)
   }
 
+  // Preprocessing.
+  (schemaBase as any).preprocess = (preprocess: YrelPreprocessor): YrelSchema => {
+    schemaBase.__cache.preprocessors = schemaBase.__cache.preprocessors
+      ? [...schemaBase.__cache.preprocessors, preprocess]
+      : [preprocess]
+    return schemaBase
+  }
+
   // Common validators.
-  schemaBase.validate = (validate) => {
+  (schemaBase as any).validate = (validate: YrelValidator): YrelSchema => {
     schemaBase.__validators.push((data: unknown) => validate(data, schemaBase.__cache))
     return schemaBase
   }

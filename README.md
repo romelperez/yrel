@@ -118,6 +118,28 @@ type Schema = InferYrel<typeof schema>
 
 The methods should be called at the end of schema definition.
 
+## Preprocessing
+
+After checking a value is not optional nor nullable, all schemas can be pre-processed to
+change its data type or anything required.
+
+```ts
+const schema = y.string().preprocess(data => String(data))
+validateYrel(schema, 100) // { isValid: true, data: '100' }
+```
+
+## Coercing
+
+After checking a value is not optional nor nullable, and running all defined pre-processors,
+some schemas can be coerced to their data types.
+
+```ts
+const schema = y.string().coerce()
+validateYrel(schema, 100) // { isValid: true, data: '100' }
+```
+
+_See [API](#api) for more details._
+
 ## Error Handling
 
 Yrel provides a set of validators with predefined error codes for the error report.

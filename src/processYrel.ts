@@ -20,6 +20,10 @@ const processYrel = (
       }
     }
 
+    for (const preprocess of schema.__cache.preprocessors ?? []) {
+      data = preprocess(data, schema.__cache)
+    }
+
     for (const resolver of schema.__resolvers) {
       const result = resolver(data, schema.__cache, { key })
 
