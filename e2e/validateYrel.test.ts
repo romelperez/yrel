@@ -157,4 +157,19 @@ test('coerce primitives', () => {
   expect(received).toEqual(expected)
 })
 
-test.todo('Should allow to define a "rootKey" to report issues on root schema')
+test('Should allow to define a "rootKey" to report issues on root schema', () => {
+  const schema = y.object({
+    name: y.string(),
+    pets: y.array(y.string())
+  })
+  const received = validateYrel(schema, { name: 'yrel', pets: ['cat', 1, 'dog', true] }, { rootKey: 'root' })
+  const expected = {
+    isValid: false,
+    issues: [
+      { key: 'root.pets.1', errors: [['err_string']] },
+      { key: 'root.pets.3', errors: [['err_string']] }
+    ],
+    data: undefined
+  }
+  expect(received).toEqual(expected)
+})
