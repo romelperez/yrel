@@ -1,8 +1,7 @@
-// TODO: Test string validation with optional empty string.
 // TODO: Rename all types to prefix Yrel.
 // TODO: Add string capitalcase with intermediate lowercase characters.
-// TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add `.record(key, value)` data schema.
+// TODO: Add support for `DataValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add coercion functionalities.
 // TODO: Add tuple optional elements as possibly missing type.
 // TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme

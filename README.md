@@ -430,6 +430,14 @@ A string value.
 const schema = v.string() // string
 ```
 
+To validate an optional nonempty string validation, it can be done like this:
+
+```ts
+const schema = v.union([v.string().date(), v.literal('')])
+validate(schema, '2000-10-10') // is valid
+validate(schema, '') // is valid
+```
+
 #### `.nonempty()`
 
 Non empty string.

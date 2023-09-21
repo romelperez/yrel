@@ -51,3 +51,10 @@ test('validate()', () => {
     errors: [['err_custom', 'XYZ']]
   })
 })
+
+test('union nonempty validation with optional empty string', () => {
+  const schema = v.union([v.string().date(), v.literal('')])
+  expect(processSchema(schema, '2000-10-10')).toMatchObject({ isValid: true })
+  expect(processSchema(schema, '')).toMatchObject({ isValid: true })
+  expect(processSchema(schema, 'xxx')).toMatchObject({ isValid: false })
+})
