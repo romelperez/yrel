@@ -1,4 +1,6 @@
 export const SCHEMA = Symbol('SCHEMA')
+export const SCHEMA_OPTIONAL = Symbol('SCHEMA_OPTIONAL')
+export const SCHEMA_NULLABLE = Symbol('SCHEMA_NULLABLE')
 export const SCHEMA_ANY = Symbol('SCHEMA_ANY')
 export const SCHEMA_BOOLEAN = Symbol('SCHEMA_BOOLEAN')
 export const SCHEMA_NUMBER = Symbol('SCHEMA_NUMBER')

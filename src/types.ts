@@ -2,6 +2,8 @@
 
 import type {
   SCHEMA,
+  SCHEMA_OPTIONAL,
+  SCHEMA_NULLABLE,
   SCHEMA_ANY,
   SCHEMA_BOOLEAN,
   SCHEMA_NUMBER,
@@ -102,6 +104,8 @@ export interface DataSchema<Data = any> {
   __type: typeof SCHEMA
   __name:
   | typeof SCHEMA
+  | typeof SCHEMA_OPTIONAL
+  | typeof SCHEMA_NULLABLE
   | typeof SCHEMA_ANY
   | typeof SCHEMA_BOOLEAN
   | typeof SCHEMA_NUMBER
@@ -136,109 +140,115 @@ export interface DataSchema<Data = any> {
   validate: (validate: DataValidator<Data>) => DataSchema<Data>
 }
 
-export interface DataValidationInSchemaConfig { errors: DataError[] }
+export interface DataSchemaOptional<Schema extends DataSchema> extends DataSchema {
+  __name: typeof SCHEMA_OPTIONAL
+  nullable: () => DataSchemaOptional<DataSchemaNullable<Schema>>
+}
+
+export interface DataSchemaNullable<Schema extends DataSchema> extends DataSchema {
+  __name: typeof SCHEMA_NULLABLE
+  optional: () => DataSchemaNullable<DataSchemaOptional<Schema>>
+}
+
+export type DataValidationInSchemaConfig = { errors: DataError[] }
 
 type DataValidatorInSchemaWrapper<V extends (...args: any[]) => DataSchema> = (
   ...params: [...Parameters<V>, DataValidationInSchemaConfig?]
 ) => ReturnType<V>
 
-export interface DataSchemaBoolean<Data extends boolean | undefined | null = boolean>
-  extends DataSchema<Data> {
+export interface DataSchemaBoolean extends DataSchema<boolean> {
   __name: typeof SCHEMA_BOOLEAN
-  optional: () => DataSchemaBoolean<Data | undefined>
-  nullable: () => DataSchemaBoolean<Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaBoolean<Data>
-  truthy: DataValidatorInSchemaWrapper<() => DataSchemaBoolean<Data>>
+  optional: () => DataSchemaOptional<DataSchemaBoolean>
+  nullable: () => DataSchemaNullable<DataSchemaBoolean>
+  validate: (validate: DataValidator<boolean>) => DataSchemaBoolean
+  truthy: DataValidatorInSchemaWrapper<() => DataSchemaBoolean>
 }
 
-export interface DataSchemaNumber<Data extends number | undefined | null = number>
-  extends DataSchema<Data> {
+export interface DataSchemaNumber extends DataSchema<number> {
   __name: typeof SCHEMA_NUMBER
-  optional: () => DataSchemaNumber<Data | undefined>
-  nullable: () => DataSchemaNumber<Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaNumber<Data>
-  gt: DataValidatorInSchemaWrapper<(gt: number) => DataSchemaNumber<Data>>
-  gte: DataValidatorInSchemaWrapper<(gte: number) => DataSchemaNumber<Data>>
-  lt: DataValidatorInSchemaWrapper<(lt: number) => DataSchemaNumber<Data>>
-  lte: DataValidatorInSchemaWrapper<(lte: number) => DataSchemaNumber<Data>>
-  integer: DataValidatorInSchemaWrapper<() => DataSchemaNumber<Data>>
+  optional: () => DataSchemaOptional<DataSchemaNumber>
+  nullable: () => DataSchemaNullable<DataSchemaNumber>
+  validate: (validate: DataValidator<number>) => DataSchemaNumber
+  gt: DataValidatorInSchemaWrapper<(gt: number) => DataSchemaNumber>
+  gte: DataValidatorInSchemaWrapper<(gte: number) => DataSchemaNumber>
+  lt: DataValidatorInSchemaWrapper<(lt: number) => DataSchemaNumber>
+  lte: DataValidatorInSchemaWrapper<(lte: number) => DataSchemaNumber>
+  integer: DataValidatorInSchemaWrapper<() => DataSchemaNumber>
 }
 
-export interface DataSchemaString<Data extends string | undefined | null = string>
-  extends DataSchema<Data> {
+export interface DataSchemaString extends DataSchema<string> {
   __name: typeof SCHEMA_STRING
-  optional: () => DataSchemaString<Data | undefined>
-  nullable: () => DataSchemaString<Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaString<Data>
-  nonempty: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  trim: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  length: DataValidatorInSchemaWrapper<(value: number) => DataSchemaString<Data>>
-  min: DataValidatorInSchemaWrapper<(min: number) => DataSchemaString<Data>>
-  max: DataValidatorInSchemaWrapper<(max: number) => DataSchemaString<Data>>
-  datetime: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  date: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  time: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  lowercase: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  uppercase: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
-  capitalcase: DataValidatorInSchemaWrapper<() => DataSchemaString<Data>>
+  optional: () => DataSchemaOptional<DataSchemaString>
+  nullable: () => DataSchemaNullable<DataSchemaString>
+  validate: (validate: DataValidator<string>) => DataSchemaString
+  nonempty: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  trim: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  length: DataValidatorInSchemaWrapper<(value: number) => DataSchemaString>
+  min: DataValidatorInSchemaWrapper<(min: number) => DataSchemaString>
+  max: DataValidatorInSchemaWrapper<(max: number) => DataSchemaString>
+  datetime: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  date: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  time: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  lowercase: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  uppercase: DataValidatorInSchemaWrapper<() => DataSchemaString>
+  capitalcase: DataValidatorInSchemaWrapper<() => DataSchemaString>
 }
 
 // Literals have no default generic values.
-export interface DataSchemaLiteral<Data extends boolean | number | string | undefined | null>
-  extends DataSchema<Data> {
+export interface DataSchemaLiteral<Data extends boolean | number | string> extends DataSchema<Data> {
   __name: typeof SCHEMA_LITERAL
-  optional: () => DataSchemaLiteral<Data | undefined>
-  nullable: () => DataSchemaLiteral<Data | null>
+  optional: () => DataSchemaOptional<DataSchemaLiteral<Data>>
+  nullable: () => DataSchemaNullable<DataSchemaLiteral<Data>>
   validate: (validate: DataValidator<Data>) => DataSchemaLiteral<Data>
 }
 
-export interface DataSchemaArray<
-  Structure extends DataSchema = DataSchema,
-  Data extends unknown[] | undefined | null = Array<InferDataSchemaType<Structure>>
-> extends DataSchema<Data> {
+export interface DataSchemaArray<Structure extends DataSchema = DataSchema> extends DataSchema<Array<InferDataSchemaType<Structure>>> {
   __name: typeof SCHEMA_ARRAY
-  optional: () => DataSchemaArray<Structure, Data | undefined>
-  nullable: () => DataSchemaArray<Structure, Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaArray<Structure, Data>
-  nonempty: DataValidatorInSchemaWrapper<() => DataSchemaArray<Structure, Data>>
-  length: DataValidatorInSchemaWrapper<(min: number) => DataSchemaArray<Structure, Data>>
-  min: DataValidatorInSchemaWrapper<(min: number) => DataSchemaArray<Structure, Data>>
-  max: DataValidatorInSchemaWrapper<(max: number) => DataSchemaArray<Structure, Data>>
+  optional: () => DataSchemaOptional<DataSchemaArray<Structure>>
+  nullable: () => DataSchemaNullable<DataSchemaArray<Structure>>
+  validate: (validate: DataValidator<Array<InferDataSchemaType<Structure>>>) => DataSchemaArray<Structure>
+  nonempty: DataValidatorInSchemaWrapper<() => DataSchemaArray<Structure>>
+  length: DataValidatorInSchemaWrapper<(min: number) => DataSchemaArray<Structure>>
+  min: DataValidatorInSchemaWrapper<(min: number) => DataSchemaArray<Structure>>
+  max: DataValidatorInSchemaWrapper<(max: number) => DataSchemaArray<Structure>>
 }
 
 export interface DataSchemaUnion<
-  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
-  Data = InferDataSchemaType<Structures[number]>
-> extends DataSchema<Data> {
+  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema]
+> extends DataSchema<InferDataSchemaType<Structures[number]>> {
   __name: typeof SCHEMA_UNION
-  optional: () => DataSchemaUnion<Structures, Data | undefined>
-  nullable: () => DataSchemaUnion<Structures, Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaUnion<Structures, Data>
+  optional: () => DataSchemaOptional<DataSchemaUnion<Structures>>
+  nullable: () => DataSchemaNullable<DataSchemaUnion<Structures>>
+  validate: (validate: DataValidator<InferDataSchemaType<Structures[number]>>) => DataSchemaUnion<Structures>
 }
 
 export interface DataSchemaTuple<
   Structures extends [DataSchema, ...DataSchema[]] = [DataSchema],
-  RestStructure extends DataSchema | undefined = undefined,
-  Data extends unknown | undefined | null = InferDataSchemaType<Structures>
-> extends DataSchema<Data> {
+  RestStructure extends DataSchema | undefined = undefined
+> extends DataSchema<
+  RestStructure extends DataSchema
+    ? [...InferDataSchemaType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
+    : InferDataSchemaType<Structures>
+  > {
   __name: typeof SCHEMA_TUPLE
-  optional: () => DataSchemaTuple<Structures, RestStructure, Data | undefined>
-  nullable: () => DataSchemaTuple<Structures, RestStructure, Data | null>
-  validate: (validate: DataValidator<Data>) => DataSchemaTuple<Structures, RestStructure, Data>
+  optional: () => DataSchemaOptional<DataSchemaTuple<Structures, RestStructure>>
+  nullable: () => DataSchemaNullable<DataSchemaTuple<Structures, RestStructure>>
+  validate: (
+    validate: DataValidator<RestStructure extends DataSchema
+      ? [...InferDataSchemaType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
+      : InferDataSchemaType<Structures>>
+  ) => DataSchemaTuple<Structures, RestStructure>
 }
 
 export interface DataSchemaObject<
-  Shape extends Record<string, DataSchema> = Record<string, DataSchema>,
-  Data extends Record<string, unknown> | undefined | null = {
-    [P in keyof Shape]: InferDataSchemaType<Shape[P]>
-  }
-> extends DataSchema<Data> {
+  Shape extends Record<string, DataSchema> = Record<string, DataSchema>
+> extends DataSchema<{ [P in keyof Shape]: InferDataSchemaType<Shape[P]> }> {
   __name: typeof SCHEMA_OBJECT
   shape: Shape
-  optional: () => DataSchemaObject<Shape, Data | undefined>
-  nullable: () => DataSchemaObject<Shape, Data | null>
-  passthrough: () => DataSchemaObject<Shape, Data>
-  validate: (validate: DataValidator<Data>) => DataSchemaObject<Shape, Data>
+  optional: () => DataSchemaOptional<DataSchemaObject<Shape>>
+  nullable: () => DataSchemaNullable<DataSchemaObject<Shape>>
+  passthrough: () => DataSchemaObject<Shape>
+  validate: (validate: DataValidator<{ [P in keyof Shape]: InferDataSchemaType<Shape[P]> }>) => DataSchemaObject<Shape>
 }
 
 export interface DataSchemaAny<Data = unknown> extends DataSchema<Data> {
@@ -249,19 +259,13 @@ export interface DataSchemaAny<Data = unknown> extends DataSchema<Data> {
 // Utilities
 
 type InferArrayType<Schema extends DataSchemaArray> =
-  Schema extends DataSchemaArray<infer Structure, infer Data>
-    ?
-      | Array<InferDataSchemaType<Structure>>
-      | (undefined extends Data ? undefined : never) // .optional()
-      | (null extends Data ? null : never) // .nullable()
+  Schema extends DataSchemaArray<infer Structure>
+    ? Array<InferDataSchemaType<Structure>>
     : never
 
 type InferUnionType<Schema extends DataSchemaUnion> =
-  Schema extends DataSchemaUnion<infer Structures, infer Data>
-    ?
-      | InferDataSchemaType<Structures[number]>
-      | (undefined extends Data ? undefined : never) // .optional()
-      | (null extends Data ? null : never) // .nullable()
+  Schema extends DataSchemaUnion<infer Structures>
+    ? InferDataSchemaType<Structures[number]>
     : never
 
 type InferTupleListType<Structures extends [DataSchema, ...DataSchema[]]> = {
@@ -271,17 +275,15 @@ type InferTupleListType<Structures extends [DataSchema, ...DataSchema[]]> = {
 }
 
 type InferTupleType<Schema extends DataSchemaTuple> =
-  Schema extends DataSchemaTuple<infer Structures, infer RestStructure, infer Data>
+  Schema extends DataSchemaTuple<infer Structures, infer RestStructure>
     ?
       | (RestStructure extends DataSchema
         ? [...InferTupleListType<Structures>, ...Array<InferDataSchemaType<RestStructure>>]
         : InferTupleListType<Structures>)
-      | (undefined extends Data ? undefined : never) // .optional()
-      | (null extends Data ? null : never) // .nullable()
     : never
 
 type InferObjectType<Schema extends DataSchemaObject> =
-  Schema extends DataSchemaObject<infer Shape, infer Data>
+  Schema extends DataSchemaObject<infer Shape>
     ?
       | ({
         // Required properties.
@@ -294,25 +296,27 @@ type InferObjectType<Schema extends DataSchemaObject> =
           ? X
           : never]?: InferDataSchemaType<Shape[X]>
       })
-      | (undefined extends Data ? undefined : never) // .optional()
-      | (null extends Data ? null : never) // .nullable()
     : never
 
 export type InferDataSchemaType<Schema extends DataSchema | DataSchema[]> =
-  Schema extends DataSchemaArray<any, any>
-    ? InferArrayType<Schema>
-    : Schema extends DataSchemaUnion<any, any>
-      ? InferUnionType<Schema>
-      : Schema extends DataSchemaTuple<any, any, any>
-        ? InferTupleType<Schema>
-        : Schema extends DataSchemaObject<any, any>
-          ? InferObjectType<Schema>
-          : Schema extends DataSchema[]
-            ? {
-                [Index in keyof Schema]: Schema[Index] extends DataSchema
-                  ? InferDataSchemaType<Schema[Index]>
+  Schema extends DataSchemaOptional<infer Inner>
+    ? InferDataSchemaType<Inner> | undefined
+    : Schema extends DataSchemaNullable<infer Inner>
+      ? InferDataSchemaType<Inner> | null
+      : Schema extends DataSchemaArray<any>
+        ? InferArrayType<Schema>
+        : Schema extends DataSchemaUnion<any>
+          ? InferUnionType<Schema>
+          : Schema extends DataSchemaTuple<any, any>
+            ? InferTupleType<Schema>
+            : Schema extends DataSchemaObject<any>
+              ? InferObjectType<Schema>
+              : Schema extends DataSchema[]
+                ? {
+                    [Index in keyof Schema]: Schema[Index] extends DataSchema
+                      ? InferDataSchemaType<Schema[Index]>
+                      : never
+                  }
+                : Schema extends DataSchema<infer Data>
+                  ? Data
                   : never
-              }
-            : Schema extends DataSchema<infer Data>
-              ? Data
-              : never

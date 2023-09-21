@@ -288,7 +288,7 @@ const createDataSchemaString = (schemaBase?: DataSchema): DataSchemaString => {
   })
 }
 
-const createDataSchemaLiteral = <Data extends boolean | number | string | undefined | null>(
+const createDataSchemaLiteral = <Data extends boolean | number | string>(
   literal: Data,
   schemaBase?: DataSchema
 ): DataSchemaLiteral<Data> => {
@@ -310,10 +310,9 @@ const createDataSchemaLiteral = <Data extends boolean | number | string | undefi
 }
 
 const createDataSchemaArray = <
-  Structure extends DataSchema = DataSchema,
-  Data extends unknown[] | undefined | null = Array<InferDataSchemaType<Structure>>
->(structure: Structure, schemaBase?: DataSchema): DataSchemaArray<Structure, Data> => {
-  return createSchemaFactory<DataSchema, DataSchemaArray<Structure, Data>>({
+  Structure extends DataSchema = DataSchema
+>(structure: Structure, schemaBase?: DataSchema): DataSchemaArray<Structure> => {
+  return createSchemaFactory<DataSchema, DataSchemaArray<Structure>>({
     schemaBase,
     name: SCHEMA_ARRAY,
     resolver: (data, cache, context) => {
@@ -352,14 +351,13 @@ const createDataSchemaArray = <
 }
 
 const createDataSchemaUnion = <
-  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema],
-  Data = InferDataSchemaType<Structures[number]>
->(structures: Structures, config?: DataValidationInSchemaConfig, schemaBase?: DataSchema): DataSchemaUnion<Structures, Data> => {
+  Structures extends [DataSchema, DataSchema, ...DataSchema[]] = [DataSchema, DataSchema]
+>(structures: Structures, config?: DataValidationInSchemaConfig, schemaBase?: DataSchema): DataSchemaUnion<Structures> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .union([...schemas]) requires schema definitions.')
   }
 
-  return createSchemaFactory<DataSchema, DataSchemaUnion<Structures, Data>>({
+  return createSchemaFactory<DataSchema, DataSchemaUnion<Structures>>({
     schemaBase,
     name: SCHEMA_UNION,
     resolver: (data, cache, context) => {
@@ -381,14 +379,13 @@ const createDataSchemaUnion = <
 
 const createDataSchemaTuple = <
   Structures extends [DataSchema, ...DataSchema[]] = [DataSchema],
-  RestStructure extends DataSchema | undefined = undefined,
-  Data extends unknown | undefined | null = InferDataSchemaType<Structures>
->(structures: Structures, restStructure?: RestStructure, schemaBase?: DataSchema): DataSchemaTuple<Structures, RestStructure, Data> => {
+  RestStructure extends DataSchema | undefined = undefined
+>(structures: Structures, restStructure?: RestStructure, schemaBase?: DataSchema): DataSchemaTuple<Structures, RestStructure> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .tuple([...schemas]) requires at least one schema definition.')
   }
 
-  return createSchemaFactory<DataSchema, DataSchemaTuple<Structures, RestStructure, Data>>({
+  return createSchemaFactory<DataSchema, DataSchemaTuple<Structures, RestStructure>>({
     schemaBase,
     name: SCHEMA_TUPLE,
     resolver: (data, cache, context) => {
@@ -422,12 +419,13 @@ const createDataSchemaTuple = <
 }
 
 const createDataSchemaObject = <
-  Shape extends Record<string, DataSchema> = Record<string, DataSchema>,
-  Data extends Record<string, unknown> | undefined | null = {
+  Shape extends Record<string, DataSchema> = Record<string, DataSchema>
+>(structure: Shape, schemaBase?: DataSchema): DataSchemaObject<Shape> => {
+  type Data = {
     [P in keyof Shape]: InferDataSchemaType<Shape[P]>
   }
->(structure: Shape, schemaBase?: DataSchema): DataSchemaObject<Shape, Data> => {
-  return createSchemaFactory<DataSchema, DataSchemaObject<Shape, Data>>({
+
+  return createSchemaFactory<DataSchema, DataSchemaObject<Shape>>({
     schemaBase,
     name: SCHEMA_OBJECT,
     resolver: (data, cache, context) => {

@@ -76,6 +76,25 @@ describe('boolean', () => {
     // @ts-expect-error test
     ;(() => {}) satisfies Schema
   })
+
+  test('boolean().optional().nullable()', () => {
+    const schema = v.boolean().optional().nullable()
+    type Schema = InferDataSchemaType<typeof schema>
+    undefined satisfies Schema
+    null satisfies Schema
+    true satisfies Schema
+    false satisfies Schema
+    // @ts-expect-error test
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    // @ts-expect-error test
+    ;({}) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
 })
 
 describe('number', () => {
@@ -736,9 +755,7 @@ describe('recursive', () => {
     ;(() => {}) satisfies Schema
   })
 
-  // TODO:
-  test.skip('object / union / literals', () => {
-    /*
+  test('object / union / literals', () => {
     const schema = v.object({
       fullName: v.string(),
       pets: v.union([v.literal('cat'), v.literal('dog')])
@@ -767,6 +784,5 @@ describe('recursive', () => {
     ;[] satisfies Schema
     // @ts-expect-error test
     ;(() => {}) satisfies Schema
-    */
   })
 })
