@@ -272,29 +272,6 @@ export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {
 
 // Utilities
 
-type InferArrayType<Schema extends YrelSchemaArray> =
-  Schema extends YrelSchemaArray<infer Structure>
-    ? Array<InferYrel<Structure>>
-    : never
-
-type InferUnionType<Schema extends YrelSchemaUnion> =
-  Schema extends YrelSchemaUnion<infer Structures>
-    ? InferYrel<Structures[number]>
-    : never
-
-type InferTupleListType<Structures extends [YrelSchema, ...YrelSchema[]]> = {
-  [Index in keyof Structures]: Structures[Index] extends YrelSchema
-    ? InferYrel<Structures[Index]>
-    : never
-}
-
-type InferTupleType<Schema extends YrelSchemaTuple> =
-  Schema extends YrelSchemaTuple<infer Structures, infer RestStructure>
-    ? RestStructure extends YrelSchema
-      ? [...InferTupleListType<Structures>, ...Array<InferYrel<RestStructure>>]
-      : InferTupleListType<Structures>
-    : never
-
 type InferObjectOptionalPropsType<Schema extends YrelSchemaObject> =
   Schema extends YrelSchemaObject<infer Shape>
     ? {
@@ -329,20 +306,14 @@ export type InferYrel<Schema extends YrelSchema | YrelSchema[]> =
     ? InferYrel<Inner> | undefined
     : Schema extends YrelSchemaNullable<infer Inner>
       ? InferYrel<Inner> | null
-      : Schema extends YrelSchemaArray<any>
-        ? InferArrayType<Schema>
-        : Schema extends YrelSchemaUnion<any>
-          ? InferUnionType<Schema>
-          : Schema extends YrelSchemaTuple<any, any>
-            ? InferTupleType<Schema>
-            : Schema extends YrelSchemaObject<any>
-              ? InferObjectType<Schema>
-              : Schema extends YrelSchema[]
-                ? {
-                    [Index in keyof Schema]: Schema[Index] extends YrelSchema
-                      ? InferYrel<Schema[Index]>
-                      : never
-                  }
-                : Schema extends YrelSchema<infer Data>
-                  ? Data
-                  : never
+      : Schema extends YrelSchemaObject<any>
+        ? InferObjectType<Schema>
+        : Schema extends YrelSchema[]
+          ? {
+              [Index in keyof Schema]: Schema[Index] extends YrelSchema
+                ? InferYrel<Schema[Index]>
+                : never
+            }
+          : Schema extends YrelSchema<infer Data>
+            ? Data
+            : never
