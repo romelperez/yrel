@@ -14,6 +14,26 @@ test('initial', () => {
   })
 })
 
+test('coerce()', () => {
+  const schema = y.string().coerce()
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: 'undefined' })
+  expect(processYrel(schema, null)).toMatchObject({ isValid: true, data: 'null' })
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true, data: 'true' })
+  expect(processYrel(schema, false)).toMatchObject({ isValid: true, data: 'false' })
+  expect(processYrel(schema, 0)).toMatchObject({ isValid: true, data: '0' })
+  expect(processYrel(schema, 100)).toMatchObject({ isValid: true, data: '100' })
+  expect(processYrel(schema, -100)).toMatchObject({ isValid: true, data: '-100' })
+  expect(processYrel(schema, '')).toMatchObject({ isValid: true, data: '' })
+  expect(processYrel(schema, 'abc')).toMatchObject({ isValid: true, data: 'abc' })
+  expect(processYrel(schema, { a: 1 })).toMatchObject({ isValid: true, data: '[object Object]' })
+})
+
+test('coerce() dates', () => {
+  const schema = y.string().coerce()
+  const date = new Date()
+  expect(processYrel(schema, date)).toMatchObject({ isValid: true, data: date.toISOString() })
+})
+
 test('optional()', () => {
   const schema = y.string().optional()
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })

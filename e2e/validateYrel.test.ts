@@ -150,4 +150,11 @@ describe('nested schema', () => {
   })
 })
 
+test('coerce primitives', () => {
+  const schema = y.number().coerce().gte(100)
+  const received = validateYrel(schema, '200')
+  const expected = { isValid: true, issues: [], data: 200 }
+  expect(received).toEqual(expected)
+})
+
 test.todo('Should allow to define a "rootKey" to report issues on root schema')

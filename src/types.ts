@@ -78,9 +78,10 @@ export type YrelValidator<Data = unknown, Cache = YrelCache> = (
   cache: Cache
 ) => YrelValidation
 
-export type YrelResolution = {
+export type YrelResolution<Data = unknown> = {
   key: string
   isValid: boolean
+  data: Data
   errors: YrelError[]
   children: YrelResolution[]
 }
@@ -100,6 +101,7 @@ export type YrelResolver<Data = unknown> = (
 export type YrelCache = {
   isOptional?: boolean
   isNullable?: boolean
+  coerce?: boolean
   passthroughObjectProps?: boolean
 }
 
@@ -162,6 +164,7 @@ type YrelValidatorInSchemaWrapper<V extends (...args: any[]) => YrelSchema> = (
 
 export interface YrelSchemaBoolean extends YrelSchema<boolean> {
   __name: typeof YREL_BOOLEAN
+  coerce: () => YrelSchemaBoolean
   optional: () => YrelSchemaOptional<YrelSchemaBoolean>
   nullable: () => YrelSchemaNullable<YrelSchemaBoolean>
   validate: (validate: YrelValidator<boolean>) => YrelSchemaBoolean
@@ -170,6 +173,7 @@ export interface YrelSchemaBoolean extends YrelSchema<boolean> {
 
 export interface YrelSchemaNumber extends YrelSchema<number> {
   __name: typeof YREL_NUMBER
+  coerce: () => YrelSchemaNumber
   optional: () => YrelSchemaOptional<YrelSchemaNumber>
   nullable: () => YrelSchemaNullable<YrelSchemaNumber>
   validate: (validate: YrelValidator<number>) => YrelSchemaNumber
@@ -182,6 +186,7 @@ export interface YrelSchemaNumber extends YrelSchema<number> {
 
 export interface YrelSchemaString extends YrelSchema<string> {
   __name: typeof YREL_STRING
+  coerce: () => YrelSchemaString
   optional: () => YrelSchemaOptional<YrelSchemaString>
   nullable: () => YrelSchemaNullable<YrelSchemaString>
   validate: (validate: YrelValidator<string>) => YrelSchemaString

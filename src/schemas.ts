@@ -1,4 +1,6 @@
-// TODO: Add coercion functionalities.
+// TODO: Add .object().filter().
+// TODO: Add transforms.
+// TODO: Add defaults.
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add tuple optional elements as possibly missing type.
 // TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
@@ -146,6 +148,10 @@ const createSchemaFactory = <
 
   // Common narrowers.
   Object.assign(schemaBase, {
+    coerce: () => {
+      schemaBase.__cache.coerce = true
+      return schemaBase
+    },
     optional: () => {
       schemaBase.__cache.isOptional = true
       return schemaBase
@@ -174,11 +180,12 @@ const createYrelSchemaBoolean = (schemaBase?: YrelSchema): YrelSchemaBoolean => 
   return createSchemaFactory<YrelSchema, YrelSchemaBoolean>({
     schemaBase,
     name: YREL_BOOLEAN,
-    resolver: (data, cache, context) => {
+    resolver: (input, cache, context) => {
+      const data = cache.coerce ? Boolean(input) : input
       if (typeof data === 'boolean') {
-        return { key: context.key, isValid: true, errors: [], children: [] }
+        return { key: context.key, isValid: true, data, errors: [], children: [] }
       }
-      return { key: context.key, isValid: false, errors: [['err_boolean']], children: [] }
+      return { key: context.key, isValid: false, data, errors: [['err_boolean']], children: [] }
     },
     validators: {
       truthy: () => (data) => {
@@ -192,11 +199,12 @@ const createYrelSchemaNumber = (schemaBase?: YrelSchema): YrelSchemaNumber => {
   return createSchemaFactory<YrelSchema, YrelSchemaNumber>({
     schemaBase,
     name: YREL_NUMBER,
-    resolver: (data, cache, context) => {
+    resolver: (input, cache, context) => {
+      const data = cache.coerce ? Number(input) : input
       if (typeof data === 'number' && !isNaN(data) && Number.isFinite(data)) {
-        return { key: context.key, isValid: true, errors: [], children: [] }
+        return { key: context.key, isValid: true, data, errors: [], children: [] }
       }
-      return { key: context.key, isValid: false, errors: [['err_number']], children: [] }
+      return { key: context.key, isValid: false, data, errors: [['err_number']], children: [] }
     },
     validators: {
       gt: (gt) => (data) => {
@@ -227,11 +235,14 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
   return createSchemaFactory<YrelSchema, YrelSchemaString>({
     schemaBase,
     name: YREL_STRING,
-    resolver: (data, cache, context) => {
+    resolver: (input, cache, context) => {
+      const data = cache.coerce
+        ? input instanceof Date ? input.toISOString() : String(input)
+        : input
       if (typeof data === 'string') {
-        return { key: context.key, isValid: true, errors: [], children: [] }
+        return { key: context.key, isValid: true, data, errors: [], children: [] }
       }
-      return { key: context.key, isValid: false, errors: [['err_string']], children: [] }
+      return { key: context.key, isValid: false, data, errors: [['err_string']], children: [] }
     },
     validators: {
       nonempty: () => (data) => {
@@ -302,11 +313,12 @@ const createYrelSchemaLiteral = <Data extends boolean | number | string>(
     name: YREL_LITERAL,
     resolver: (data, cache, context) => {
       if (Object.is(data, literal)) {
-        return { key: context.key, isValid: true, errors: [], children: [] }
+        return { key: context.key, isValid: true, data, errors: [], children: [] }
       }
       return {
         key: context.key,
         isValid: false,
+        data,
         errors: [['err_literal', { literal: literal as string }]],
         children: []
       }
@@ -322,7 +334,7 @@ const createYrelSchemaArray = <
     name: YREL_ARRAY,
     resolver: (data, cache, context) => {
       if (!Array.isArray(data)) {
-        return { key: context.key, isValid: false, errors: [['err_array']], children: [] }
+        return { key: context.key, isValid: false, data, errors: [['err_array']], children: [] }
       }
 
       const children = data.map((dataItem, index) => {
@@ -332,7 +344,7 @@ const createYrelSchemaArray = <
 
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, errors: [], children }
+      return { key: context.key, isValid, data, errors: [], children }
     },
     validators: {
       nonempty: () => (data) => {
@@ -369,15 +381,15 @@ const createYrelSchemaUnion = <
       for (const structure of structures) {
         const resolution = processYrel(structure, data, context)
         if (resolution.isValid) {
-          return { key: context.key, isValid: true, errors: [], children: [] }
+          return { key: context.key, isValid: true, data, errors: [], children: [] }
         }
       }
 
       if (config?.errors) {
-        return { key: context.key, isValid: false, errors: config.errors, children: [] }
+        return { key: context.key, isValid: false, data, errors: config.errors, children: [] }
       }
 
-      return { key: context.key, isValid: false, errors: [['err_union']], children: [] }
+      return { key: context.key, isValid: false, data, errors: [['err_union']], children: [] }
     }
   })
 }
@@ -395,7 +407,7 @@ const createYrelSchemaTuple = <
     name: YREL_TUPLE,
     resolver: (data, cache, context) => {
       if (!Array.isArray(data) || (!restStructure && data.length !== structures.length)) {
-        return { key: context.key, isValid: false, errors: [['err_tuple']], children: [] }
+        return { key: context.key, isValid: false, data, errors: [['err_tuple']], children: [] }
       }
 
       const mainItemsResolutions = structures.map((structure, index) => {
@@ -418,7 +430,7 @@ const createYrelSchemaTuple = <
       const children = [...mainItemsResolutions, ...restItemsResolutions]
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, errors: [], children }
+      return { key: context.key, isValid, data, errors: [], children }
     }
   })
 }
@@ -435,7 +447,7 @@ const createYrelSchemaObject = <
     name: YREL_OBJECT,
     resolver: (data, cache, context) => {
       if (!isObject(data)) {
-        return { key: context.key, isValid: false, errors: [['err_object']], children: [] }
+        return { key: context.key, isValid: false, data, errors: [['err_object']], children: [] }
       }
 
       const structureKeys = Object.keys(structure) as Array<keyof Shape>
@@ -452,6 +464,7 @@ const createYrelSchemaObject = <
           return {
             key: context.key,
             isValid: false,
+            data,
             errors: [['err_object_unexpected_props', { props: unexpectedProps }]],
             children: []
           }
@@ -467,7 +480,7 @@ const createYrelSchemaObject = <
 
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, errors: [], children }
+      return { key: context.key, isValid, data, errors: [], children }
     },
     properties: {
       shape: structure
@@ -490,7 +503,7 @@ const createYrelSchemaRecord = <
     name: YREL_RECORD,
     resolver: (data, cache, context) => {
       if (!isObject(data)) {
-        return { key: context.key, isValid: false, errors: [['err_record']], children: [] }
+        return { key: context.key, isValid: false, data, errors: [['err_record']], children: [] }
       }
 
       const record = data as Record<string, unknown>
@@ -513,7 +526,7 @@ const createYrelSchemaRecord = <
         ? [['err_record_keys', { keys: keysInvalid }]]
         : []
 
-      return { key: context.key, isValid, errors, children }
+      return { key: context.key, isValid, data, errors, children }
     }
   })
 }
@@ -525,6 +538,7 @@ const createYrelSchemaAny = (): YrelSchemaAny => {
     resolver: (data, cache, context) => ({
       key: context.key,
       isValid: true,
+      data,
       errors: [],
       children: []
     })

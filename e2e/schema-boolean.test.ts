@@ -14,6 +14,16 @@ test('initial', () => {
   })
 })
 
+test('coerce()', () => {
+  const schema = y.boolean().coerce()
+  ;[false, undefined, null, 0, NaN, ''].forEach(data => {
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true, data: false })
+  })
+  ;[true, 1, 'a', {}, [], () => {}].forEach(data => {
+    expect(processYrel(schema, data)).toMatchObject({ isValid: true, data: true })
+  })
+})
+
 test('optional()', () => {
   const schema = y.boolean().optional()
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })

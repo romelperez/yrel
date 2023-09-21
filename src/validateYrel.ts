@@ -25,7 +25,7 @@ const validateYrel = <Schema extends YrelSchema>(
   const isValid = tree.isValid
 
   if (isValid) {
-    return { isValid, issues: [], data: data as InferYrel<Schema> }
+    return { isValid, issues: [], data: tree.data as InferYrel<Schema> }
   }
 
   return { isValid, issues: getIssues(tree), data: undefined }

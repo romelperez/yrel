@@ -392,6 +392,19 @@ Boolean values.
 const schema = y.boolean() // boolean
 ```
 
+#### `.coerce()`
+
+Force the data input value to `Boolean(input)` during validation.
+
+```ts
+const schema = y.boolean().coerce()
+validateYrel(schema, 0) // { isValid: true, data: false }
+validateYrel(schema, '') // { isValid: true, data: false }
+validateYrel(schema, 100) // { isValid: true, data: true }
+validateYrel(schema, 'abc') // { isValid: true, data: true }
+validateYrel(schema, {}) // { isValid: true, data: true }
+```
+
 #### `.truthy()`
 
 Only `true` values.
@@ -402,6 +415,18 @@ Numeric and finite numbers.
 
 ```ts
 const schema = y.number() // number
+```
+
+#### `.coerce()`
+
+Force the data input value to `Number(input)` during validation. `Date` objects
+are coerced with `.getTime()`.
+
+```ts
+const schema = y.number().coerce()
+validateYrel(schema, true) // { isValid: true, data: 1 }
+validateYrel(schema, '100') // { isValid: true, data: 100 }
+validateYrel(schema, new Date()) // { isValid: true, data: 1695336434720 }
 ```
 
 #### `.gt(value: number)`
@@ -438,6 +463,18 @@ To validateYrel an optional nonempty string validation, it can be done like this
 const schema = y.union([y.string().date(), y.literal('')])
 validateYrel(schema, '2000-10-10') // valid
 validateYrel(schema, '') // valid
+```
+
+#### `.coerce()`
+
+Force the data input value to `String(input)` during validation. `Date` objects
+are coerced with `.toISOString()`.
+
+```ts
+const schema = y.string().coerce()
+validateYrel(schema, true) // { isValid: true, data: 'true' }
+validateYrel(schema, 100) // { isValid: true, data: '100' }
+validateYrel(schema, new Date()) // { isValid: true, data: '2023-09-21T22:46:09.059Z' }
 ```
 
 #### `.nonempty()`

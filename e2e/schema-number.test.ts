@@ -14,6 +14,25 @@ test('initial', () => {
   })
 })
 
+test('coerce()', () => {
+  const schema = y.number().coerce()
+  expect(processYrel(schema, NaN)).toMatchObject({ isValid: false })
+  expect(processYrel(schema, Infinity)).toMatchObject({ isValid: false })
+  expect(processYrel(schema, 'abc')).toMatchObject({ isValid: false })
+  expect(processYrel(schema, false)).toMatchObject({ isValid: true, data: 0 })
+  expect(processYrel(schema, true)).toMatchObject({ isValid: true, data: 1 })
+  expect(processYrel(schema, '')).toMatchObject({ isValid: true, data: 0 })
+  expect(processYrel(schema, '10')).toMatchObject({ isValid: true, data: 10 })
+  expect(processYrel(schema, '-20')).toMatchObject({ isValid: true, data: -20 })
+  expect(processYrel(schema, '-30e2')).toMatchObject({ isValid: true, data: -3000 })
+})
+
+test('coerce() dates', () => {
+  const schema = y.number().coerce()
+  const date = new Date()
+  expect(processYrel(schema, date)).toMatchObject({ isValid: true, data: date.getTime() })
+})
+
 test('optional()', () => {
   const schema = y.number().optional()
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true })

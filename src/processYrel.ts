@@ -2,12 +2,13 @@ import type { YrelSchema, YrelResolution, YrelResolverContext, YrelError } from 
 
 const processYrel = (
   schema: YrelSchema,
-  data: unknown,
+  input: unknown,
   context?: YrelResolverContext
 ): YrelResolution => {
   const key = context?.key ?? ''
   const errors: YrelError[] = []
 
+  let data = input
   let isValid = true
   let children: YrelResolution[] = []
 
@@ -15,12 +16,15 @@ const processYrel = (
     for (const checker of schema.__checkers) {
       const result = checker(data, schema.__cache)
       if (result) {
-        return { key, isValid, errors, children }
+        return { key, isValid, data, errors, children }
       }
     }
 
     for (const resolver of schema.__resolvers) {
       const result = resolver(data, schema.__cache, { key })
+
+      // Passed around or coerce the data.
+      data = result.data
 
       if (result.errors) {
         errors.push(...result.errors)
@@ -44,7 +48,7 @@ const processYrel = (
 
   isValid = (errors.length === 0) && children.every((child) => child.isValid)
 
-  return { key, isValid, errors, children }
+  return { key, isValid, data, errors, children }
 }
 
 export { processYrel }
