@@ -1,5 +1,3 @@
-// TODO: Test any type.
-// TODO: Test isYrel tool.
 // TODO: Add string capitalcase with intermediate lowercase characters.
 // TODO: Add `.record(key, value)` data schema.
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.

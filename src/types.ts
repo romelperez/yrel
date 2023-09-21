@@ -251,7 +251,7 @@ export interface YrelSchemaObject<
   validate: (validate: YrelValidator<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
 }
 
-export interface YrelSchemaAny<Data = unknown> extends YrelSchema<Data> {
+export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {
   __name: typeof YREL_ANY
   validate: (validate: YrelValidator<Data>) => YrelSchemaAny<Data>
 }
