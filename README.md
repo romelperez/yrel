@@ -153,8 +153,6 @@ validateYrel(schema, 'ABC') // { isValid: true, data: 'abc' }
 Yrel provides a set of validators with predefined error codes for the error report.
 
 ```ts
-import { y, validateYrel } from 'yrel'
-
 const schema = y.object({
   name: y.string().min(2),
   age: y.number().gte(18)
@@ -190,8 +188,6 @@ The report error `key` is a string with the path to the schema which reported
 the error joined by dots. For arrays and tuples, the item index is used.
 
 ```ts
-import { y, validateYrel } from 'yrel'
-
 const schema = y.object({
   users: y.array(
     y.object({
@@ -229,8 +225,6 @@ console.log(validation.issues)
 If the error is in the root schema, the key is an empty string.
 
 ```ts
-import { y, validateYrel } from 'yrel'
-
 const schema = y.string()
 const validation = validateYrel(schema, 100)
 
@@ -251,7 +245,7 @@ A custom root key can be configured too with `validateYrel(schema, data, { rootK
 
 ## Custom Validators
 
-All schemas support the `.validateYrel(value => YrelValidation)` method to add custom
+All schemas support the `.validate(data => YrelValidation)` method to add custom
 validators. They must return either `true` or a list of errors. Every error is tuple
 with the predefined error code and the according parameters if applicable.
 
@@ -268,7 +262,7 @@ const validateEmail = (value: string): YrelValidation =>
 const schema = y.object({
   name: y.string().min(2),
   age: y.number().gte(18),
-  email: y.string().validateYrel(validateEmail)
+  email: y.string().validate(validateEmail)
 })
 
 const validation = validateYrel(schema, {
@@ -293,7 +287,7 @@ console.log(validation.issues)
 
 Yrel comes with a predefined list of error codes with possible extra parameters for
 the error report. The following is a list of them. If the type to the right is `undefined`
-it says that it does not require parameters.
+it says that it does not require parameters. Otherwise, it defines the parameters types.
 
 - `err_unknown: undefined`
 - `err_boolean: undefined`
@@ -348,7 +342,7 @@ const validateUserId = (value: string): YrelValidation =>
   (/^\w{3,3}-\w{3,3}$/).test(value) || [['err_custom', 'my_custom_error_invalid_user_id']]
 
 const schema = y.object({
-  id: y.string().validateYrel(validateUserId),
+  id: y.string().validate(validateUserId),
   name: y.string().min(2),
   age: y.number().gte(18),
   pets: y.array(
@@ -394,11 +388,9 @@ console.log(validation.issues)
 
 ## Custom Schemas
 
-Schemas with custom data types can be created with the general schema `.any()`.
+Schemas with custom data types can be created with the general schema `.any<type>()`.
 
 ```ts
-import { y, validateYrel, type InferYrel } from 'yrel'
-
 const schema = y
   .any<'cat' | 'dog'>()
   .validate(data => data === 'cat' || data === 'dog' || [['err_custom', 'not_a_pet']])
@@ -423,7 +415,7 @@ console.log(isSchema(validSchema)) // true
 
 ## API
 
-### `y.any(): YrelSchemaAny`
+### `y.any<Data = unknown>(): YrelSchemaAny<Data>`
 
 Any kind of value.
 
@@ -504,7 +496,7 @@ A string value.
 const schema = y.string() // string
 ```
 
-To validate an optional nonempty string validation, it can be done like this:
+To validate an optional non-empty string validation, it can be done like this:
 
 ```ts
 const schema = y.union([y.string().date(), y.literal('')])
@@ -568,7 +560,7 @@ A string in uppercase.
 
 A string in capital case. By default, it allows any uppercase characters such as `Abc Def`
 or `ABc DEF`. If `.capitalcase({ lower: true })` is defined, it will only accept lowercase
-chactaters for non-first letters such as `Abc Def`.
+chactaters for non-first word letters such as `Abc Def`.
 
 ### `y.literal(value: boolean | number | string): YrelSchemaLiteral`
 
@@ -633,6 +625,8 @@ const schema = y.union<[YrelSchemaLiteral<Languages>, YrelSchemaLiteral<Language
 type Schema = InferYrel<typeof schema> // 'en' | 'es' | 'fr' | 'hi' | 'zh'
 ```
 
+Or using a custom type with `y.any<type>()`.
+
 ### `y.tuple(schemas: [YrelSchema, ...YrelSchema[]]): YrelSchemaTuple`
 
 An array with fixed number of elements and each of them with a specific data schema.
@@ -665,7 +659,8 @@ The object shape structure.
 #### `.passthrough()`
 
 By default the object data schema will report an error if the validated object contains
-unexpected properties which are not defined in the schema shape. This will disable the error.
+unexpected properties which are not defined in the schema shape. This will allow such
+properties.
 
 ### `y.record(key: YrelSchemaString, value: YrelSchema): YrelSchemaRecord`
 
