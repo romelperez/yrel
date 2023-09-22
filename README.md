@@ -56,9 +56,6 @@ console.log(validation.data) // { name: 'yrel', age: 21 }
 console.log(validation.issues) // []
 ```
 
-`validation.data` is just passed from the received data with the type of the schema
-if it is valid. Otherwise, it would be `undefined`.
-
 ## Type Inference
 
 ```ts

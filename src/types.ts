@@ -69,6 +69,8 @@ export type YrelError =
         : never
   }[keyof YrelErrorTranslations]
 
+export type YrelPreprocessor = (data: unknown, cache: YrelCache) => unknown
+
 export type YrelChecker<Data = unknown, Cache = YrelCache> = (data: Data, cache: Cache) => boolean
 
 export type YrelValidation = true | YrelError[]
@@ -98,8 +100,6 @@ export type YrelResolver<Data = unknown> = (
 
 // Schemas
 
-export type YrelPreprocessor = (data: unknown, cache: YrelCache) => unknown
-
 export type YrelCache = {
   isOptional?: boolean
   isNullable?: boolean
@@ -107,6 +107,12 @@ export type YrelCache = {
   preprocessors?: YrelPreprocessor[]
   passthroughObjectProps?: boolean
 }
+
+export type YrelValidationInSchemaConfig = { errors: YrelError[] }
+
+type YrelValidatorInSchemaWrapper<V extends (...args: any[]) => YrelSchema> = (
+  ...params: [...Parameters<V>, YrelValidationInSchemaConfig?]
+) => ReturnType<V>
 
 export interface YrelSchema<Data = any> {
   __type: typeof YREL
@@ -147,12 +153,6 @@ export interface YrelSchema<Data = any> {
    */
   __validators: Array<YrelValidator<Data>>
 }
-
-export type YrelValidationInSchemaConfig = { errors: YrelError[] }
-
-type YrelValidatorInSchemaWrapper<V extends (...args: any[]) => YrelSchema> = (
-  ...params: [...Parameters<V>, YrelValidationInSchemaConfig?]
-) => ReturnType<V>
 
 export interface YrelSchemaOptional<Schema extends YrelSchema> extends YrelSchema {
   __name: typeof YREL_OPTIONAL

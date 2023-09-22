@@ -554,7 +554,7 @@ const createYrelSchemaAny = (): YrelSchemaAny => {
   })
 }
 
-const y = {
+const yrel = {
   any: createYrelSchemaAny,
   boolean: createYrelSchemaBoolean,
   number: createYrelSchemaNumber,
@@ -567,4 +567,6 @@ const y = {
   record: createYrelSchemaRecord
 }
 
-export { y }
+const y = yrel
+
+export { yrel, y }
