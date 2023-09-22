@@ -99,6 +99,14 @@ test('validate()', () => {
   })
 })
 
+test('defaultsTo()', () => {
+  const schema = y
+    .tuple([y.number(), y.string()])
+    .defaultsTo([0, 'x'])
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: [0, 'x'] })
+  expect(processYrel(schema, [1, 'w'])).toMatchObject({ isValid: true, data: [1, 'w'] })
+})
+
 test('transform()', () => {
   const schema = y
     .tuple([y.number(), y.number()])

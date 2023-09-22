@@ -59,6 +59,15 @@ test('union nonempty validation with optional empty string', () => {
   expect(processYrel(schema, 'xxx')).toMatchObject({ isValid: false })
 })
 
+test('defaultsTo()', () => {
+  const schema = y
+    .union([y.literal('cat'), y.literal('dog')])
+    .defaultsTo('cat')
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: 'cat' })
+  expect(processYrel(schema, 'cat')).toMatchObject({ isValid: true, data: 'cat' })
+  expect(processYrel(schema, 'dog')).toMatchObject({ isValid: true, data: 'dog' })
+})
+
 test('transform()', () => {
   const schema = y
     .union([y.literal('cat'), y.literal('dog'), y.literal('parrot')])

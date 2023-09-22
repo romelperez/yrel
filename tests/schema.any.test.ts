@@ -19,6 +19,12 @@ test('validate()', () => {
   })
 })
 
+test('defaultsTo()', () => {
+  const schema = y.any().defaultsTo('cat')
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: 'cat' })
+  expect(processYrel(schema, 'dog')).toMatchObject({ isValid: true, data: 'dog' })
+})
+
 test('transform()', () => {
   const schema = y.any().transform(data => data === 10 ? 'yes' : 'no')
   expect(processYrel(schema, 10)).toMatchObject({ isValid: true, data: 'yes' })

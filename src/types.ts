@@ -106,6 +106,7 @@ export type YrelCache = {
   isOptional?: boolean
   isNullable?: boolean
   coerce?: boolean
+  defaultData?: unknown
   preprocessors?: YrelPreprocessor[]
   transformers?: YrelTransformer[]
   passthroughObjectProps?: boolean
@@ -171,6 +172,7 @@ export interface YrelSchemaNullable<Schema extends YrelSchema> extends YrelSchem
   validate: (validator: YrelValidator<InferYrel<Schema>>) => YrelSchemaNullable<Schema>
   optional: () => YrelSchemaNullable<YrelSchemaOptional<Schema>>
   transform: (transformer: YrelTransformer<InferYrel<Schema> | null>) => YrelSchemaNullable<Schema>
+  defaultsTo: (data: InferYrel<Schema>) => YrelSchemaNullable<Schema>
 }
 
 export interface YrelSchemaBoolean extends YrelSchema<boolean> {
@@ -182,6 +184,7 @@ export interface YrelSchemaBoolean extends YrelSchema<boolean> {
   validate: (validator: YrelValidator<boolean>) => YrelSchemaBoolean
   truthy: YrelValidatorInSchemaWrapper<() => YrelSchemaBoolean>
   transform: (transformer: YrelTransformer<boolean>) => YrelSchemaBoolean
+  defaultsTo: (data: boolean) => YrelSchemaBoolean
 }
 
 export interface YrelSchemaNumber extends YrelSchema<number> {
@@ -197,6 +200,7 @@ export interface YrelSchemaNumber extends YrelSchema<number> {
   lte: YrelValidatorInSchemaWrapper<(lte: number) => YrelSchemaNumber>
   integer: YrelValidatorInSchemaWrapper<() => YrelSchemaNumber>
   transform: (transformer: YrelTransformer<number>) => YrelSchemaNumber
+  defaultsTo: (data: number) => YrelSchemaNumber
 }
 
 export interface YrelSchemaString extends YrelSchema<string> {
@@ -218,9 +222,11 @@ export interface YrelSchemaString extends YrelSchema<string> {
   uppercase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   capitalcase: YrelValidatorInSchemaWrapper<(conf?: { lower?: boolean }) => YrelSchemaString>
   transform: (transformer: YrelTransformer<string>) => YrelSchemaString
+  defaultsTo: (data: string) => YrelSchemaString
 }
 
 // Literals have no default generic values.
+// `defaultsTo` is not added since it is not useful in this case.
 export interface YrelSchemaLiteral<Data extends boolean | number | string> extends YrelSchema<Data> {
   __name: typeof YREL_LITERAL
   preprocess: (preprocessor: YrelPreprocessor<Data>) => YrelSchemaLiteral<Data>
@@ -241,6 +247,7 @@ export interface YrelSchemaArray<Structure extends YrelSchema = YrelSchema> exte
   min: YrelValidatorInSchemaWrapper<(min: number) => YrelSchemaArray<Structure>>
   max: YrelValidatorInSchemaWrapper<(max: number) => YrelSchemaArray<Structure>>
   transform: (transformer: YrelTransformer<Array<InferYrel<Structure>>>) => YrelSchemaArray<Structure>
+  defaultsTo: (data: Array<InferYrel<Structure>>) => YrelSchemaArray<Structure>
 }
 
 export interface YrelSchemaUnion<
@@ -252,6 +259,7 @@ export interface YrelSchemaUnion<
   nullable: () => YrelSchemaNullable<YrelSchemaUnion<Structures>>
   validate: (validator: YrelValidator<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
   transform: (transformer: YrelTransformer<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
+  defaultsTo: (data: InferYrel<Structures[number]>) => YrelSchemaUnion<Structures>
 }
 
 export interface YrelSchemaTuple<
@@ -274,6 +282,9 @@ export interface YrelSchemaTuple<
   transform: (
     transformer: YrelTransformer<RestStructure extends YrelSchema ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>] : InferYrel<Structures>>
   ) => YrelSchemaTuple<Structures, RestStructure>
+  defaultsTo: (
+    data: RestStructure extends YrelSchema ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>] : InferYrel<Structures>
+  ) => YrelSchemaTuple<Structures, RestStructure>
 }
 
 // Object inferred type assumes all properties are there, even the optional, for simplicity.
@@ -288,6 +299,7 @@ export interface YrelSchemaObject<
   passthrough: () => YrelSchemaObject<Shape>
   validate: (validator: YrelValidator<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
   transform: (transformer: YrelTransformer<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
+  defaultsTo: (data: { [P in keyof Shape]: InferYrel<Shape[P]> }) => YrelSchemaObject<Shape>
 }
 
 export interface YrelSchemaRecord<
@@ -300,6 +312,7 @@ export interface YrelSchemaRecord<
   nullable: () => YrelSchemaNullable<YrelSchemaRecord<Key, Value>>
   validate: (validator: YrelValidator<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
   transform: (transformer: YrelTransformer<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
+  defaultsTo: (data: Record<InferYrel<Key>, InferYrel<Value>>) => YrelSchemaRecord<Key, Value>
 }
 
 export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {
@@ -307,6 +320,7 @@ export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {
   preprocess: (preprocessor: YrelPreprocessor<Data>) => YrelSchemaAny<Data>
   validate: (validator: YrelValidator<Data>) => YrelSchemaAny<Data>
   transform: (transformer: YrelTransformer<Data>) => YrelSchemaAny<Data>
+  defaultsTo: (data: Data) => YrelSchemaAny<Data>
 }
 
 // Utilities

@@ -10,7 +10,7 @@
 [![github stars](https://img.shields.io/github/stars/romelperez/yrel.svg?style=social&label=stars)](https://github.com/romelperez/yrel)
 [![license](https://img.shields.io/github/license/romelperez/yrel.svg)](https://github.com/romelperez/yrel/blob/main/LICENSE)
 
-~2.3kB JavaScript JSON schema validation with TypeScript type inference.
+~2.8kB JavaScript JSON schema validation with TypeScript type inference.
 
 ## Install
 

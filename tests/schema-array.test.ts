@@ -108,6 +108,14 @@ test('validator with custom configuration', () => {
   })
 })
 
+test('defaultsTo()', () => {
+  const schema = y
+    .array(y.string())
+    .defaultsTo(['a', 'b'])
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: ['a', 'b'] })
+  expect(processYrel(schema, ['w', 'x'])).toMatchObject({ isValid: true, data: ['w', 'x'] })
+})
+
 test('transform()', () => {
   const schema = y.array(y.string()).transform(data => data.map(item => item.toLowerCase()))
   expect(processYrel(schema, ['A', 'B'])).toMatchObject({ isValid: true, data: ['a', 'b'] })

@@ -108,6 +108,14 @@ test('shape', () => {
   expect(shape).toBe(schema.shape)
 })
 
+test('defaultsTo()', () => {
+  const schema = y
+    .object({ a: y.number(), b: y.string() })
+    .defaultsTo({ a: 1, b: '2' })
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: { a: 1, b: '2' } })
+  expect(processYrel(schema, { a: 2, b: '3' })).toMatchObject({ isValid: true, data: { a: 2, b: '3' } })
+})
+
 test('transform()', () => {
   const schema = y
     .object({ w: y.string(), x: y.number() })

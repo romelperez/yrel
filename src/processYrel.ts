@@ -24,6 +24,10 @@ const processYrel = (
       data = preprocessor(data, schema.__cache)
     }
 
+    if (schema.__cache.defaultData !== undefined && data === undefined) {
+      data = schema.__cache.defaultData
+    }
+
     for (const resolver of schema.__resolvers) {
       const result = resolver(data, schema.__cache, { key })
 

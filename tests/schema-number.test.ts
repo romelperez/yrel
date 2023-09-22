@@ -134,6 +134,12 @@ test('validator with custom configuration', () => {
   })
 })
 
+test('defaultsTo()', () => {
+  const schema = y.number().defaultsTo(0)
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: 0 })
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true, data: 10 })
+})
+
 test('transform()', () => {
   const schema = y.number().transform(data => data * 2)
   expect(processYrel(schema, 10)).toMatchObject({ isValid: true, data: 20 })

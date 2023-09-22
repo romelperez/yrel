@@ -1,4 +1,3 @@
-// TODO: Add defaults.
 // TODO: Add .object().filter().
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add tuple optional elements as possibly missing type.
@@ -109,6 +108,12 @@ const createSchemaFactory = <
     schemaBase.__cache.preprocessors = schemaBase.__cache.preprocessors
       ? [...schemaBase.__cache.preprocessors, preprocess]
       : [preprocess]
+    return schemaBase
+  }
+
+  // defaultsTo().
+  (schemaBase as any).defaultsTo = (data: unknown): YrelSchema => {
+    schemaBase.__cache.defaultData = data
     return schemaBase
   }
 

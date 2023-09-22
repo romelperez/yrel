@@ -224,6 +224,12 @@ test('validator with custom configuration', () => {
   })
 })
 
+test('defaultsTo()', () => {
+  const schema = y.string().defaultsTo('cat')
+  expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: 'cat' })
+  expect(processYrel(schema, 'dog')).toMatchObject({ isValid: true, data: 'dog' })
+})
+
 test('transform()', () => {
   const schema = y.string().transform(data => data.toLowerCase())
   expect(processYrel(schema, 'ABC')).toMatchObject({ isValid: true, data: 'abc' })
