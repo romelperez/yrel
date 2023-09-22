@@ -23,7 +23,7 @@ npm install yrel
 For UMD version:
 
 ```ts
-import { y } from 'yrel/build/umd/yrel.umd.cjs'
+import { y, validateYrel } from 'yrel/build/umd/yrel.umd.cjs'
 ```
 
 ```html
@@ -125,6 +125,19 @@ or anything required.
 const schema = y.string().preprocess(data => String(data))
 validateYrel(schema, 100) // { isValid: true, data: '100' }
 ```
+
+## Defaults
+
+All schemas can have a default value if the received data is `undefined`.
+
+```ts
+const schema = y.string().defaultsTo('cat')
+validateYrel(schema, undefined) // { isValid: true, data: 'cat' }
+validateYrel(schema, 'dog') // { isValid: true, data: 'dog' }
+```
+
+It can not be used with optional schemas since it will mark it as valid and
+ignore the default value.
 
 ## Coercers
 
