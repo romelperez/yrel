@@ -69,7 +69,7 @@ export type YrelError =
         : never
   }[keyof YrelErrorTranslations]
 
-export type YrelPreprocessor<Data = unknown> = (data: Data, cache: YrelCache) => Data
+export type YrelPreprocessor<Data = unknown> = (data: unknown, cache: YrelCache) => Data
 
 export type YrelTransformer<Data = unknown> = (data: Data, cache: YrelCache) => Data
 
@@ -160,16 +160,16 @@ export interface YrelSchema<Data = any> {
 
 export interface YrelSchemaOptional<Schema extends YrelSchema> extends YrelSchema {
   __name: typeof YREL_OPTIONAL
-  preprocess: (preprocessor: YrelPreprocessor) => YrelSchemaOptional<Schema>
-  validate: (validator: YrelValidator<InferYrel<Schema>>) => YrelSchemaOptional<Schema>
+  preprocess: (preprocessor: YrelPreprocessor<InferYrel<Schema> | undefined>) => YrelSchemaOptional<Schema>
+  validate: (validator: YrelValidator<InferYrel<Schema> | undefined>) => YrelSchemaOptional<Schema>
   nullable: () => YrelSchemaOptional<YrelSchemaNullable<Schema>>
   transform: (transformer: YrelTransformer<InferYrel<Schema> | undefined>) => YrelSchemaOptional<Schema>
 }
 
 export interface YrelSchemaNullable<Schema extends YrelSchema> extends YrelSchema {
   __name: typeof YREL_NULLABLE
-  preprocess: (preprocessor: YrelPreprocessor) => YrelSchemaNullable<Schema>
-  validate: (validator: YrelValidator<InferYrel<Schema>>) => YrelSchemaNullable<Schema>
+  preprocess: (preprocessor: YrelPreprocessor<InferYrel<Schema> | null>) => YrelSchemaNullable<Schema>
+  validate: (validator: YrelValidator<InferYrel<Schema> | null>) => YrelSchemaNullable<Schema>
   optional: () => YrelSchemaNullable<YrelSchemaOptional<Schema>>
   transform: (transformer: YrelTransformer<InferYrel<Schema> | null>) => YrelSchemaNullable<Schema>
   defaultsTo: (data: InferYrel<Schema>) => YrelSchemaNullable<Schema>
