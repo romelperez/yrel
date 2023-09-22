@@ -323,7 +323,7 @@ it says that it does not require parameters. Otherwise, it defines the parameter
 - `err_string_time: undefined`
 - `err_string_lowercase: undefined`
 - `err_string_uppercase: undefined`
-- `err_string_capitalcase: undefined`
+- `err_string_capitalcase: [{ lower: boolean }]`
 - `err_string_email: undefined`
 - `err_string_credit_card: undefined`
 - `err_string_url: undefined`
@@ -338,6 +338,8 @@ it says that it does not require parameters. Otherwise, it defines the parameter
 - `err_tuple: undefined`
 - `err_object: undefined`
 - `err_object_unexpected_props: [{ props: string[] }]`
+- `err_record: undefined`
+- `err_record_keys: [{ keys: string[] }]`
 
 One error with parameters can be the `err_number_gte` which requires the parameter
 `gte: number`, so the report may be `['err_number_gte', { gte: 18 }]`.
@@ -428,7 +430,7 @@ console.log(isSchema(validSchema)) // true
 
 ## API
 
-### `y.any<Data = unknown>(): YrelSchemaAny<Data>`
+### `y.any<Data = any>(): YrelSchemaAny<Data>`
 
 Any kind of value.
 
