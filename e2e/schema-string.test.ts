@@ -223,3 +223,9 @@ test('validator with custom configuration', () => {
     children: []
   })
 })
+
+test('transform()', () => {
+  const schema = y.string().transform(data => data.toLowerCase())
+  expect(processYrel(schema, 'ABC')).toMatchObject({ isValid: true, data: 'abc' })
+  expect(processYrel(schema, 'DEF')).toMatchObject({ isValid: true, data: 'def' })
+})

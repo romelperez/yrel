@@ -20,14 +20,13 @@ const processYrel = (
       }
     }
 
-    for (const preprocess of schema.__cache.preprocessors ?? []) {
-      data = preprocess(data, schema.__cache)
+    for (const preprocessor of schema.__cache.preprocessors ?? []) {
+      data = preprocessor(data, schema.__cache)
     }
 
     for (const resolver of schema.__resolvers) {
       const result = resolver(data, schema.__cache, { key })
 
-      // Passed around or coerce the data.
       data = result.data
 
       if (result.errors) {
@@ -43,6 +42,12 @@ const processYrel = (
       const result = validate(data, schema.__cache)
       if (result !== true) {
         errors.push(...result)
+      }
+    }
+
+    if (!errors.length) {
+      for (const transformer of schema.__cache.transformers ?? []) {
+        data = transformer(data, schema.__cache)
       }
     }
   } catch (err) {

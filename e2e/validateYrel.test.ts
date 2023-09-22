@@ -150,20 +150,29 @@ describe('nested schema', () => {
   })
 })
 
-test('coercing', () => {
+test('coercers', () => {
   const schema = y.number().coerce().gte(100)
   const received = validateYrel(schema, '200')
   const expected = { isValid: true, issues: [], data: 200 }
   expect(received).toEqual(expected)
 })
 
-test('preprocessing', () => {
+test('preprocessors', () => {
   const schema = y.number().preprocess(data => Number(data) > 0 ? 1 : 0)
   expect(validateYrel(schema, '-10')).toMatchObject({ isValid: true, data: 0 })
   expect(validateYrel(schema, '-2')).toMatchObject({ isValid: true, data: 0 })
   expect(validateYrel(schema, '0')).toMatchObject({ isValid: true, data: 0 })
   expect(validateYrel(schema, '2')).toMatchObject({ isValid: true, data: 1 })
   expect(validateYrel(schema, '10')).toMatchObject({ isValid: true, data: 1 })
+})
+
+test('transformers', () => {
+  const schema = y.string().transform(data => `${data}rem`)
+  expect(validateYrel(schema, '-10')).toMatchObject({ isValid: true, data: '-10rem' })
+  expect(validateYrel(schema, '-2')).toMatchObject({ isValid: true, data: '-2rem' })
+  expect(validateYrel(schema, '0')).toMatchObject({ isValid: true, data: '0rem' })
+  expect(validateYrel(schema, '2')).toMatchObject({ isValid: true, data: '2rem' })
+  expect(validateYrel(schema, '10')).toMatchObject({ isValid: true, data: '10rem' })
 })
 
 test('Should allow to define a "rootKey" to report issues on root schema', () => {

@@ -115,17 +115,18 @@ type Schema = InferYrel<typeof schema>
 
 The methods should be called at the end of schema definition.
 
-## Preprocessing
+## Preprocessors
 
-After checking a value is not optional nor nullable, all schemas can be pre-processed to
-change its data type or anything required.
+All schemas can be pre-processed before validation. After checking a value is
+not optional nor nullable, a schema can be pre-processed to change its data type
+or anything required.
 
 ```ts
 const schema = y.string().preprocess(data => String(data))
 validateYrel(schema, 100) // { isValid: true, data: '100' }
 ```
 
-## Coercing
+## Coercers
 
 After checking a value is not optional nor nullable, and running all defined pre-processors,
 some schemas can be coerced to their data types.
@@ -136,6 +137,16 @@ validateYrel(schema, 100) // { isValid: true, data: '100' }
 ```
 
 _See [API](#api) for more details._
+
+## Transformers
+
+All schemas data can be transformed. When a schema is valid, the schema data can
+be transformed to a new value of the same type.
+
+```ts
+const schema = y.string().transform(data => data.toLowerCase())
+validateYrel(schema, 'ABC') // { isValid: true, data: 'abc' }
+```
 
 ## Error Handling
 
@@ -381,6 +392,23 @@ console.log(validation.issues)
 */
 ```
 
+## Custom Schemas
+
+Schemas with custom data types can be created with the general schema `.any()`.
+
+```ts
+import { y, validateYrel, type InferYrel } from 'yrel'
+
+const schema = y
+  .any<'cat' | 'dog'>()
+  .validate(data => data === 'cat' || data === 'dog' || [['err_custom', 'not_a_pet']])
+
+type Schema = InferYrel<typeof schema> // 'cat' | 'dog'
+
+validateYrel(schema, 'cat') // { isValid: true }
+validateYrel(schema, 'dolphin') // { isValid: false }
+```
+
 ## Schema Detection
 
 ```ts
@@ -476,7 +504,7 @@ A string value.
 const schema = y.string() // string
 ```
 
-To validateYrel an optional nonempty string validation, it can be done like this:
+To validate an optional nonempty string validation, it can be done like this:
 
 ```ts
 const schema = y.union([y.string().date(), y.literal('')])

@@ -74,3 +74,11 @@ test('validate()', () => {
     errors: [['err_custom', 'passwords_do_not_match']]
   })
 })
+
+test('transform()', () => {
+  const schema = y
+    .record(y.string(), y.number())
+    .transform(data => ({ ...data, x: 100 }))
+  expect(processYrel(schema, { a: 1, b: 2 }))
+    .toMatchObject({ isValid: true, data: { a: 1, b: 2, x: 100 } })
+})

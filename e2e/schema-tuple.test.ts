@@ -98,3 +98,11 @@ test('validate()', () => {
     errors: [['err_custom', 'XYZ']]
   })
 })
+
+test('transform()', () => {
+  const schema = y
+    .tuple([y.number(), y.number()])
+    .transform(([x, y]) => [x * 2, y * 2])
+  expect(processYrel(schema, [1, 2])).toMatchObject({ isValid: true, data: [2, 4] })
+  expect(processYrel(schema, [10, 20])).toMatchObject({ isValid: true, data: [20, 40] })
+})

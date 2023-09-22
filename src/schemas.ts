@@ -1,6 +1,6 @@
-// TODO: Add .object().filter().
-// TODO: Add transforms.
+// TODO: Rename e2e to tests.
 // TODO: Add defaults.
+// TODO: Add .object().filter().
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add tuple optional elements as possibly missing type.
 // TODO: https://github.com/arktypeio/arktype/tree/beta/ark/attest#readme
@@ -22,6 +22,7 @@ import type {
   InferYrel,
   YrelError,
   YrelPreprocessor,
+  YrelTransformer,
   YrelResolution,
   YrelResolver,
   YrelValidationInSchemaConfig,
@@ -104,11 +105,19 @@ const createSchemaFactory = <
     Object.assign(schemaBase, properties)
   }
 
-  // Preprocessing.
+  // Preprocessors.
   (schemaBase as any).preprocess = (preprocess: YrelPreprocessor): YrelSchema => {
     schemaBase.__cache.preprocessors = schemaBase.__cache.preprocessors
       ? [...schemaBase.__cache.preprocessors, preprocess]
       : [preprocess]
+    return schemaBase
+  }
+
+  // Transformers.
+  (schemaBase as any).transform = (transform: YrelTransformer): YrelSchema => {
+    schemaBase.__cache.transformers = schemaBase.__cache.transformers
+      ? [...schemaBase.__cache.transformers, transform]
+      : [transform]
     return schemaBase
   }
 
@@ -540,8 +549,8 @@ const createYrelSchemaRecord = <
   })
 }
 
-const createYrelSchemaAny = (): YrelSchemaAny => {
-  return createSchemaFactory<YrelSchema, YrelSchemaAny>({
+const createYrelSchemaAny = <Data = any>(): YrelSchemaAny<Data> => {
+  return createSchemaFactory<YrelSchema, YrelSchemaAny<Data>>({
     schemaBase: null,
     name: YREL_ANY,
     resolver: (data, cache, context) => ({

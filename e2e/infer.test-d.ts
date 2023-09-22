@@ -1,18 +1,42 @@
 import { describe, test } from 'vitest'
 import { type InferYrel, y } from '../'
 
-test('any()', () => {
-  const schema = y.any()
-  type Schema = InferYrel<typeof schema>
-  undefined satisfies Schema
-  null satisfies Schema
-  true satisfies Schema
-  false satisfies Schema
-  10 satisfies Schema
-  'a' satisfies Schema
-  ;({}) satisfies Schema
-  ;[] satisfies Schema
-  ;(() => {}) satisfies Schema
+describe('any', () => {
+  test('any()', () => {
+    const schema = y.any()
+    type Schema = InferYrel<typeof schema>
+    undefined satisfies Schema
+    null satisfies Schema
+    true satisfies Schema
+    false satisfies Schema
+    10 satisfies Schema
+    'a' satisfies Schema
+    ;({}) satisfies Schema
+    ;[] satisfies Schema
+    ;(() => {}) satisfies Schema
+  })
+
+  test('any<type>()', () => {
+    const schema = y.any<number>()
+    type Schema = InferYrel<typeof schema>
+    // @ts-expect-error test
+    undefined satisfies Schema
+    // @ts-expect-error test
+    null satisfies Schema
+    // @ts-expect-error test
+    true satisfies Schema
+    // @ts-expect-error test
+    false satisfies Schema
+    10 satisfies Schema
+    // @ts-expect-error test
+    'a' satisfies Schema
+    // @ts-expect-error test
+    ;({}) satisfies Schema
+    // @ts-expect-error test
+    ;[] satisfies Schema
+    // @ts-expect-error test
+    ;(() => {}) satisfies Schema
+  })
 })
 
 describe('boolean', () => {

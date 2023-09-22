@@ -107,3 +107,9 @@ test('validator with custom configuration', () => {
     errors: [['err_custom', 'xyz', 10]]
   })
 })
+
+test('transform()', () => {
+  const schema = y.array(y.string()).transform(data => data.map(item => item.toLowerCase()))
+  expect(processYrel(schema, ['A', 'B'])).toMatchObject({ isValid: true, data: ['a', 'b'] })
+  expect(processYrel(schema, ['X', 'Y'])).toMatchObject({ isValid: true, data: ['x', 'y'] })
+})

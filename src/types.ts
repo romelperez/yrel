@@ -69,7 +69,9 @@ export type YrelError =
         : never
   }[keyof YrelErrorTranslations]
 
-export type YrelPreprocessor = (data: unknown, cache: YrelCache) => unknown
+export type YrelPreprocessor<Data = unknown> = (data: Data, cache: YrelCache) => Data
+
+export type YrelTransformer<Data = unknown> = (data: Data, cache: YrelCache) => Data
 
 export type YrelChecker<Data = unknown, Cache = YrelCache> = (data: Data, cache: Cache) => boolean
 
@@ -105,6 +107,7 @@ export type YrelCache = {
   isNullable?: boolean
   coerce?: boolean
   preprocessors?: YrelPreprocessor[]
+  transformers?: YrelTransformer[]
   passthroughObjectProps?: boolean
 }
 
@@ -156,49 +159,53 @@ export interface YrelSchema<Data = any> {
 
 export interface YrelSchemaOptional<Schema extends YrelSchema> extends YrelSchema {
   __name: typeof YREL_OPTIONAL
-  preprocess: (preprocess: YrelPreprocessor) => Schema
-  validate: (validate: YrelValidator<InferYrel<Schema>>) => Schema
+  preprocess: (preprocessor: YrelPreprocessor) => YrelSchemaOptional<Schema>
+  validate: (validator: YrelValidator<InferYrel<Schema>>) => YrelSchemaOptional<Schema>
   nullable: () => YrelSchemaOptional<YrelSchemaNullable<Schema>>
+  transform: (transformer: YrelTransformer<InferYrel<Schema> | undefined>) => YrelSchemaOptional<Schema>
 }
 
 export interface YrelSchemaNullable<Schema extends YrelSchema> extends YrelSchema {
   __name: typeof YREL_NULLABLE
-  preprocess: (preprocess: YrelPreprocessor) => Schema
-  validate: (validate: YrelValidator<InferYrel<Schema>>) => Schema
+  preprocess: (preprocessor: YrelPreprocessor) => YrelSchemaNullable<Schema>
+  validate: (validator: YrelValidator<InferYrel<Schema>>) => YrelSchemaNullable<Schema>
   optional: () => YrelSchemaNullable<YrelSchemaOptional<Schema>>
+  transform: (transformer: YrelTransformer<InferYrel<Schema> | null>) => YrelSchemaNullable<Schema>
 }
 
 export interface YrelSchemaBoolean extends YrelSchema<boolean> {
   __name: typeof YREL_BOOLEAN
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaBoolean
+  preprocess: (preprocessor: YrelPreprocessor<boolean>) => YrelSchemaBoolean
   coerce: () => YrelSchemaBoolean
   optional: () => YrelSchemaOptional<YrelSchemaBoolean>
   nullable: () => YrelSchemaNullable<YrelSchemaBoolean>
-  validate: (validate: YrelValidator<boolean>) => YrelSchemaBoolean
+  validate: (validator: YrelValidator<boolean>) => YrelSchemaBoolean
   truthy: YrelValidatorInSchemaWrapper<() => YrelSchemaBoolean>
+  transform: (transformer: YrelTransformer<boolean>) => YrelSchemaBoolean
 }
 
 export interface YrelSchemaNumber extends YrelSchema<number> {
   __name: typeof YREL_NUMBER
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaNumber
+  preprocess: (preprocessor: YrelPreprocessor<number>) => YrelSchemaNumber
   coerce: () => YrelSchemaNumber
   optional: () => YrelSchemaOptional<YrelSchemaNumber>
   nullable: () => YrelSchemaNullable<YrelSchemaNumber>
-  validate: (validate: YrelValidator<number>) => YrelSchemaNumber
+  validate: (validator: YrelValidator<number>) => YrelSchemaNumber
   gt: YrelValidatorInSchemaWrapper<(gt: number) => YrelSchemaNumber>
   gte: YrelValidatorInSchemaWrapper<(gte: number) => YrelSchemaNumber>
   lt: YrelValidatorInSchemaWrapper<(lt: number) => YrelSchemaNumber>
   lte: YrelValidatorInSchemaWrapper<(lte: number) => YrelSchemaNumber>
   integer: YrelValidatorInSchemaWrapper<() => YrelSchemaNumber>
+  transform: (transformer: YrelTransformer<number>) => YrelSchemaNumber
 }
 
 export interface YrelSchemaString extends YrelSchema<string> {
   __name: typeof YREL_STRING
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaString
+  preprocess: (preprocessor: YrelPreprocessor<string>) => YrelSchemaString
   coerce: () => YrelSchemaString
   optional: () => YrelSchemaOptional<YrelSchemaString>
   nullable: () => YrelSchemaNullable<YrelSchemaString>
-  validate: (validate: YrelValidator<string>) => YrelSchemaString
+  validate: (validator: YrelValidator<string>) => YrelSchemaString
   nonempty: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   trim: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   length: YrelValidatorInSchemaWrapper<(value: number) => YrelSchemaString>
@@ -210,37 +217,41 @@ export interface YrelSchemaString extends YrelSchema<string> {
   lowercase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   uppercase: YrelValidatorInSchemaWrapper<() => YrelSchemaString>
   capitalcase: YrelValidatorInSchemaWrapper<(conf?: { lower?: boolean }) => YrelSchemaString>
+  transform: (transformer: YrelTransformer<string>) => YrelSchemaString
 }
 
 // Literals have no default generic values.
 export interface YrelSchemaLiteral<Data extends boolean | number | string> extends YrelSchema<Data> {
   __name: typeof YREL_LITERAL
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaLiteral<Data>
+  preprocess: (preprocessor: YrelPreprocessor<Data>) => YrelSchemaLiteral<Data>
   optional: () => YrelSchemaOptional<YrelSchemaLiteral<Data>>
   nullable: () => YrelSchemaNullable<YrelSchemaLiteral<Data>>
-  validate: (validate: YrelValidator<Data>) => YrelSchemaLiteral<Data>
+  validate: (validator: YrelValidator<Data>) => YrelSchemaLiteral<Data>
+  transform: (transformer: YrelTransformer<Data>) => YrelSchemaLiteral<Data>
 }
 
 export interface YrelSchemaArray<Structure extends YrelSchema = YrelSchema> extends YrelSchema<Array<InferYrel<Structure>>> {
   __name: typeof YREL_ARRAY
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaArray<Structure>
+  preprocess: (preprocessor: YrelPreprocessor<Array<InferYrel<Structure>>>) => YrelSchemaArray<Structure>
   optional: () => YrelSchemaOptional<YrelSchemaArray<Structure>>
   nullable: () => YrelSchemaNullable<YrelSchemaArray<Structure>>
-  validate: (validate: YrelValidator<Array<InferYrel<Structure>>>) => YrelSchemaArray<Structure>
+  validate: (validator: YrelValidator<Array<InferYrel<Structure>>>) => YrelSchemaArray<Structure>
   nonempty: YrelValidatorInSchemaWrapper<() => YrelSchemaArray<Structure>>
   length: YrelValidatorInSchemaWrapper<(min: number) => YrelSchemaArray<Structure>>
   min: YrelValidatorInSchemaWrapper<(min: number) => YrelSchemaArray<Structure>>
   max: YrelValidatorInSchemaWrapper<(max: number) => YrelSchemaArray<Structure>>
+  transform: (transformer: YrelTransformer<Array<InferYrel<Structure>>>) => YrelSchemaArray<Structure>
 }
 
 export interface YrelSchemaUnion<
   Structures extends [YrelSchema, YrelSchema, ...YrelSchema[]] = [YrelSchema, YrelSchema]
 > extends YrelSchema<InferYrel<Structures[number]>> {
   __name: typeof YREL_UNION
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaUnion<Structures>
+  preprocess: (preprocessor: YrelPreprocessor<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
   optional: () => YrelSchemaOptional<YrelSchemaUnion<Structures>>
   nullable: () => YrelSchemaNullable<YrelSchemaUnion<Structures>>
-  validate: (validate: YrelValidator<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
+  validate: (validator: YrelValidator<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
+  transform: (transformer: YrelTransformer<InferYrel<Structures[number]>>) => YrelSchemaUnion<Structures>
 }
 
 export interface YrelSchemaTuple<
@@ -252,26 +263,31 @@ export interface YrelSchemaTuple<
     : InferYrel<Structures>
   > {
   __name: typeof YREL_TUPLE
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaTuple<Structures, RestStructure>
+  preprocess: (
+    preprocessor: YrelPreprocessor<RestStructure extends YrelSchema ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>] : InferYrel<Structures>>
+  ) => YrelSchemaTuple<Structures, RestStructure>
   optional: () => YrelSchemaOptional<YrelSchemaTuple<Structures, RestStructure>>
   nullable: () => YrelSchemaNullable<YrelSchemaTuple<Structures, RestStructure>>
   validate: (
-    validate: YrelValidator<RestStructure extends YrelSchema
-      ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>]
-      : InferYrel<Structures>>
+    validate: YrelValidator<RestStructure extends YrelSchema ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>] : InferYrel<Structures>>
+  ) => YrelSchemaTuple<Structures, RestStructure>
+  transform: (
+    transformer: YrelTransformer<RestStructure extends YrelSchema ? [...InferYrel<Structures>, ...Array<InferYrel<RestStructure>>] : InferYrel<Structures>>
   ) => YrelSchemaTuple<Structures, RestStructure>
 }
 
+// Object inferred type assumes all properties are there, even the optional, for simplicity.
 export interface YrelSchemaObject<
   Shape extends Record<string, YrelSchema> = Record<string, YrelSchema>
 > extends YrelSchema<{ [P in keyof Shape]: InferYrel<Shape[P]> }> {
   __name: typeof YREL_OBJECT
   shape: Shape
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaObject<Shape>
+  preprocess: (preprocessor: YrelPreprocessor<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
   optional: () => YrelSchemaOptional<YrelSchemaObject<Shape>>
   nullable: () => YrelSchemaNullable<YrelSchemaObject<Shape>>
   passthrough: () => YrelSchemaObject<Shape>
-  validate: (validate: YrelValidator<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
+  validate: (validator: YrelValidator<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
+  transform: (transformer: YrelTransformer<{ [P in keyof Shape]: InferYrel<Shape[P]> }>) => YrelSchemaObject<Shape>
 }
 
 export interface YrelSchemaRecord<
@@ -279,16 +295,18 @@ export interface YrelSchemaRecord<
   Value extends YrelSchema
 > extends YrelSchema<Record<InferYrel<Key>, InferYrel<Value>>> {
   __name: typeof YREL_RECORD
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaRecord<Key, Value>
+  preprocess: (preprocessor: YrelPreprocessor<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
   optional: () => YrelSchemaOptional<YrelSchemaRecord<Key, Value>>
   nullable: () => YrelSchemaNullable<YrelSchemaRecord<Key, Value>>
-  validate: (validate: YrelValidator<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
+  validate: (validator: YrelValidator<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
+  transform: (transformer: YrelTransformer<Record<InferYrel<Key>, InferYrel<Value>>>) => YrelSchemaRecord<Key, Value>
 }
 
 export interface YrelSchemaAny<Data = any> extends YrelSchema<Data> {
   __name: typeof YREL_ANY
-  preprocess: (preprocess: YrelPreprocessor) => YrelSchemaAny<Data>
-  validate: (validate: YrelValidator<Data>) => YrelSchemaAny<Data>
+  preprocess: (preprocessor: YrelPreprocessor<Data>) => YrelSchemaAny<Data>
+  validate: (validator: YrelValidator<Data>) => YrelSchemaAny<Data>
+  transform: (transformer: YrelTransformer<Data>) => YrelSchemaAny<Data>
 }
 
 // Utilities
