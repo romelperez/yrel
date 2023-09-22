@@ -1,4 +1,3 @@
-// TODO: Rename e2e to tests.
 // TODO: Add defaults.
 // TODO: Add .object().filter().
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
