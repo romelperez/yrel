@@ -403,39 +403,13 @@ console.log(validation.issues)
 
 ## Error Translations
 
-Yrel reports the validation errors with only the error codes with their
-respective parameters. If they need to be presented to the end user, a tool like
-[Ukti](https://github.com/romelperez/ukti) can be used to translate them.
+Yrel reports the validation issues with only the error codes with their
+respective parameters.
+
+A example validation use case can be:
 
 ```ts
-import { y, validateYrel, type YrelErrorTranslations } from 'yrel'
-import { createUktiTranslator, type UktiTranslations } from 'ukti'
-
-// For custom error reports.
-type ErrorCustomTranslations = {
-  err_custom_sex: undefined
-}
-
-const translations: UktiTranslations<YrelErrorTranslations & ErrorCustomTranslations> = {
-  en: {
-    err_boolean: 'This field should be a boolean.',
-    err_number: 'A valid number is required.',
-    err_number_gt: 'This number should be greater than {{gt}}.',
-    err_number_gte: 'This number should be at least {{gte}}.',
-    err_number_lt: 'This number should be less than {{lt}}.',
-    err_number_lte: 'This number should be at most {{lte}}.',
-    err_string: 'This text field is required.',
-    err_string_min: 'The field should have at least {{min}} character{{min === 1 ? "" : "s"}}.',
-    err_string_max: 'The field should have at most {{max}} character{{max === 1 ? "" : "s"}}.',
-    // ...
-    err_custom_sex: 'Invalid sex.'
-  }
-}
-
-const t = createUktiTranslator<YrelErrorTranslations & ErrorCustomTranslations>({
-  locale: 'en',
-  translations
-})
+import { y, validateYrel } from 'yrel'
 
 const schema = y.object({
   name: y.string().min(2).max(10),
@@ -459,7 +433,7 @@ const data = {
 const validation = validateYrel(schema, data)
 ```
 
-Since the validation is not valid, the following issues are reported:
+Since the data is invalid, the following issues are reported:
 
 ```json
 [
@@ -502,21 +476,53 @@ Since the validation is not valid, the following issues are reported:
 ]
 ```
 
-Then for each issue, we can map them to their respective translation:
+If they need to be presented to the end user, a tool like
+[Ukti](https://github.com/romelperez/ukti) can be used to translate them.
+Then each issue can be mapped to their respective translation:
 
 ```ts
+import { type YrelErrorTranslations } from 'yrel'
+import { createUktiTranslator, type UktiTranslations } from 'ukti'
+
+// For custom error reports.
+type ErrorCustomTranslations = {
+  err_custom_sex: undefined
+}
+
+const translations: UktiTranslations<YrelErrorTranslations & ErrorCustomTranslations> = {
+  en: {
+    err_boolean: 'This field should be a boolean.',
+    err_number: 'A valid number is required.',
+    err_number_gt: 'This number should be greater than {{gt}}.',
+    err_number_gte: 'This number should be at least {{gte}}.',
+    err_number_lt: 'This number should be less than {{lt}}.',
+    err_number_lte: 'This number should be at most {{lte}}.',
+    err_string: 'This text field is required.',
+    err_string_min: 'The field should have at least {{min}} character{{min === 1 ? "" : "s"}}.',
+    err_string_max: 'The field should have at most {{max}} character{{max === 1 ? "" : "s"}}.',
+    // ...
+    err_custom_sex: 'Invalid sex.'
+  }
+}
+
+const translate = createUktiTranslator<YrelErrorTranslations & ErrorCustomTranslations>({
+  locale: 'en',
+  translations
+})
+
+// Using the previous Yrel schema validation result:
 if (!validation.isValid) {
   validation.issues.forEach(issue => {
     issue.errors.forEach(err => {
       const errorMessage = err[0] === 'err_custom'
-        ? t(err[1] as keyof ErrorCustomTranslations, err[2] as any)
-        : t(err[0], err[1])
+        ? translate(err[1] as keyof ErrorCustomTranslations, err[2] as any)
+        : translate(err[0], err[1])
       console.log(`${issue.key}:`, errorMessage)
     })
   })
 }
 
-// logs:
+// Logs:
 // 'name: The field should have at least 2 characters.'
 // 'age: This number should be at least 0.'
 // 'married: This field should be a boolean.'
@@ -524,6 +530,8 @@ if (!validation.isValid) {
 // 'pets.0: This text field is required.'
 // 'pets.1: The field should have at most 10 characters.'
 ```
+
+See [Ukti](https://github.com/romelperez/ukti) for more details on translations.
 
 ## Custom Schemas
 
