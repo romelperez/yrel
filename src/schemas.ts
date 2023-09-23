@@ -1,3 +1,5 @@
+// TODO: Add object coerce.
+// TODO: Add ability for transforms to return errors.
 // TODO: Add .object().filter().
 // TODO: Add support for `YrelValidationInSchemaConfig` for all schema resolvers.
 // TODO: Add tuple optional elements as possibly missing type.

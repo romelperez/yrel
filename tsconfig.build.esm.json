@@ -4,6 +4,7 @@
     "module": "ESNext",
     "declaration": true,
     "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
     "outDir": "build/esm",
     "plugins": [
       { "transform": "@build-script/typescript-transformer-append-js-extension" }
