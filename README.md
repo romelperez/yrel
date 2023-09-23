@@ -401,6 +401,130 @@ console.log(validation.issues)
 */
 ```
 
+## Error Translations
+
+Yrel reports the validation errors with only the error codes with their
+respective parameters. If they need to be presented to the end user, a tool like
+[Ukti](https://github.com/romelperez/ukti) can be used to translate them.
+
+```ts
+import { y, validateYrel, type YrelErrorTranslations } from 'yrel'
+import { createUktiTranslator, type UktiTranslations } from 'ukti'
+
+// For custom error reports.
+type ErrorCustomTranslations = {
+  err_custom_sex: undefined
+}
+
+const translations: UktiTranslations<YrelErrorTranslations & ErrorCustomTranslations> = {
+  en: {
+    err_boolean: 'This field should be a boolean.',
+    err_number: 'A valid number is required.',
+    err_number_gt: 'This number should be greater than {{gt}}.',
+    err_number_gte: 'This number should be at least {{gte}}.',
+    err_number_lt: 'This number should be less than {{lt}}.',
+    err_number_lte: 'This number should be at most {{lte}}.',
+    err_string: 'This text field is required.',
+    err_string_min: 'The field should have at least {{min}} character{{min === 1 ? "" : "s"}}.',
+    err_string_max: 'The field should have at most {{max}} character{{max === 1 ? "" : "s"}}.',
+    // ...
+    err_custom_sex: 'Invalid sex.'
+  }
+}
+
+const t = createUktiTranslator<YrelErrorTranslations & ErrorCustomTranslations>({
+  locale: 'en',
+  translations
+})
+
+const schema = y.object({
+  name: y.string().min(2).max(10),
+  age: y.number().gte(0).lte(100),
+  married: y.boolean().optional(),
+  sex: y.union(
+    [y.literal('female'), y.literal('male')],
+    { errors: [['err_custom', 'err_custom_sex']] } // Custom error report.
+  ).optional(),
+  pets: y.array(y.string().nonempty().max(10)).max(3).nullable()
+})
+
+const data = {
+  name: 'y',
+  age: -1,
+  married: 10,
+  sex: 'unicorn',
+  pets: [true, 'unknown species']
+}
+
+const validation = validateYrel(schema, data)
+```
+
+Since the validation is not valid, the following issues are reported:
+
+```json
+[
+  {
+    "key": "name",
+    "errors": [
+      ["err_string_min", { "min": 2 }]
+    ]
+  },
+  {
+    "key": "age",
+    "errors": [
+      ["err_number_gte", { "gte": 0 }]
+    ]
+  },
+  {
+    "key": "married",
+    "errors": [
+      ["err_boolean"]
+    ]
+  },
+  {
+    "key": "sex",
+    "errors": [
+      ["err_custom", "err_custom_sex"]
+    ]
+  },
+  {
+    "key": "pets.0",
+    "errors": [
+      ["err_string"]
+    ]
+  },
+  {
+    "key": "pets.1",
+    "errors": [
+      ["err_string_max", { "max": 10 }]
+    ]
+  }
+]
+```
+
+Then for each issue, we can map them to their respective translation:
+
+```ts
+if (!validation.isValid) {
+  validation.issues.forEach(issue => {
+    issue.errors.forEach(err => {
+      const errorMessage = err[0] === 'err_custom'
+        ? t(err[1] as keyof ErrorCustomTranslations, err[2] as any)
+        : t(err[0], err[1])
+      console.log(`${issue.key}:`, errorMessage)
+    })
+  })
+}
+
+// logs:
+// 'name: The field should have at least 2 characters.'
+// 'age: This number should be at least 0.'
+// 'married: This field should be a boolean.'
+// 'sex: Invalid sex.'
+// 'pets.0: This text field is required.'
+// 'pets.1: The field should have at most 10 characters.'
+```
+
 ## Custom Schemas
 
 Schemas with custom data types can be created with the general schema `.any<type>()`.
