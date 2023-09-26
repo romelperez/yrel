@@ -2,7 +2,7 @@
 
 # Yrel
 
-[![version](https://img.shields.io/npm/y/yrel.svg)](https://npmjs.org/package/yrel)
+[![version](https://img.shields.io/npm/v/yrel)](https://npmjs.org/package/yrel)
 [![tests](https://github.com/romelperez/yrel/workflows/tests/badge.svg)](https://github.com/romelperez/yrel/actions)
 [![codefactor](https://www.codefactor.io/repository/github/romelperez/yrel/badge)](https://www.codefactor.io/repository/github/romelperez/yrel)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/yrel.svg)](https://bundlephobia.com/package/yrel)
@@ -551,13 +551,13 @@ validateYrel(schema, 'dolphin') // { isValid: false }
 ## Schema Detection
 
 ```ts
-import { y, isSchema } from 'yrel'
+import { y, isYrel } from 'yrel'
 
 const fakeSchema = {}
 const validSchema = y.string()
 
-console.log(isSchema(fakeSchema)) // false
-console.log(isSchema(validSchema)) // true
+console.log(isYrel(fakeSchema)) // false
+console.log(isYrel(validSchema)) // true
 ```
 
 ## API
@@ -580,7 +580,7 @@ const schema = y.boolean() // boolean
 
 #### `.coerce()`
 
-Force the data input value to `Boolean(input)` during validation.
+Force the data input value to `Boolean(input)` before validation.
 
 ```ts
 const schema = y.boolean().coerce()
@@ -605,7 +605,7 @@ const schema = y.number() // number
 
 #### `.coerce()`
 
-Force the data input value to `Number(input)` during validation. `Date` objects
+Force the data input value to `Number(input)` before validation. `Date` objects
 are coerced with `.getTime()`.
 
 ```ts
@@ -653,7 +653,7 @@ validateYrel(schema, '') // valid
 
 #### `.coerce()`
 
-Force the data input value to `String(input)` during validation. `Date` objects
+Force the data input value to `String(input)` before validation. `Date` objects
 are coerced with `.toISOString()`.
 
 ```ts
