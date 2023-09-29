@@ -17,7 +17,7 @@
 For any ESM and CommonJS JavaScript environment. If TypeScript is used, version 4.5+ is required.
 
 ```bash
-npm install yrel
+npm i yrel
 ```
 
 For UMD version:
