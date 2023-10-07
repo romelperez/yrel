@@ -88,18 +88,18 @@ test('Should translate error codes with Ukti translations', () => {
       [item.key]: {
         ...item,
         errors: item.errors.map(err => {
+          // Type-safety is not enforced here but should be enforced when creating
+          // the translation definition.
           if (err[0] === 'err_custom') {
-            // Type-safety is not enforced here, but it should be enforced
-            // when creating the error reports in the validators.
-            return t(err[1] as keyof CustomTranslations, err[2] as any)
+            return (t[err[1] as keyof CustomTranslations] as any)(err[2])
           }
-          return t(err[0], err[1])
+          return (t[err[0]] as any)(err[1])
         })
       }
     }), {})
 
-  console.log('validation.issues:', JSON.stringify(validation.issues, null, 2))
-  console.log('validationIssuesAsObject:', JSON.stringify(validationIssuesAsObject, null, 2))
+  // console.log('validation.issues:', JSON.stringify(validation.issues, null, 2))
+  // console.log('validationIssuesAsObject:', JSON.stringify(validationIssuesAsObject, null, 2))
 
   expect(validationIssuesAsObject.name?.errors).toEqual(['The field should have at least 2 characters.'])
   expect(validationIssuesAsObject.age?.errors).toEqual(['This number should be at least 0.'])

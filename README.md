@@ -515,8 +515,8 @@ if (!validation.isValid) {
   validation.issues.forEach(issue => {
     issue.errors.forEach(err => {
       const errorMessage = err[0] === 'err_custom'
-        ? translate(err[1] as keyof ErrorCustomTranslations, err[2] as any)
-        : translate(err[0], err[1])
+        ? (translate[err[1] as keyof ErrorCustomTranslations] as any)(err[2])
+        : (translate[err[0]] as any)(err[1])
       console.log(`${issue.key}:`, errorMessage)
     })
   })

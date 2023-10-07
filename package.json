@@ -43,7 +43,7 @@
     "husky": "^8.0.3",
     "ttypescript": "^1.5.15",
     "typescript": "4.9",
-    "ukti": "^1.0.1",
+    "ukti": "^3.0.0",
     "vite": "^4.4.9",
     "vitest": "^0.34.4"
   },
