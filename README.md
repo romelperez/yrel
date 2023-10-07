@@ -514,6 +514,8 @@ const translate = createUktiTranslator<YrelErrorTranslations & ErrorCustomTransl
 if (!validation.isValid) {
   validation.issues.forEach(issue => {
     issue.errors.forEach(err => {
+      // Type-safety is not enforced here but should be enforced when creating
+      // the translation definition.
       const errorMessage = err[0] === 'err_custom'
         ? (translate[err[1] as keyof ErrorCustomTranslations] as any)(err[2])
         : (translate[err[0]] as any)(err[1])
