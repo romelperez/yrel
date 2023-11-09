@@ -292,8 +292,12 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
       datetime: () => (data) => {
         if (typeof data !== 'string') return []
         const timestamp = Date.parse(data)
-        const datetime = isNaN(timestamp) ? null : new Date(timestamp).toISOString()
-        return datetime === data || [['err_string_date_time']]
+        // Get the datetime format '2000-01-01T00:00:00' to compare.
+        const expectedDateTime = isNaN(timestamp) ? null : new Date(timestamp).toISOString().slice(0, 19)
+        const receivedDateTime = data.slice(0, 19)
+        // Get the milliseconds for optional comparison.
+        const hasValidMilliseconds = /^(\.\d{1,3})?Z$/.test(data.slice(19))
+        return (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [['err_string_date_time']]
       },
       date: () => (data) => {
         if (typeof data !== 'string') return []

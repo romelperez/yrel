@@ -124,10 +124,22 @@ test('max(max)', () => {
 
 test('datetime()', () => {
   const schema = y.string().datetime()
-  ;['2000-01-01T00:00:00.000Z', '2050-10-25T14:45:30.370Z'].forEach((data) => {
+  ;[
+    '2050-10-25T14:45:30Z',
+    '2000-01-01T00:00:00.0Z',
+    '2000-01-01T00:00:00.01Z',
+    '2000-01-01T00:00:00.001Z',
+    '2050-10-25T14:45:30.370Z'
+  ].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
-  ;['2000-00-01T00:00:00.000Z', '2050-10-25T24:45:30.370Z'].forEach((data) => {
+  ;[
+    '2000-00-01T00:00:00.000Z',
+    '2050-10-25T24:45:30.370Z',
+    '2000-00-01T00:00:00.Z',
+    '2000-00-01T00:00:00.0000Z',
+    '2000-00-01T00:00:00.-02Z'
+  ].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_string_date_time']]

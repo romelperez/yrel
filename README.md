@@ -687,7 +687,14 @@ A string with at most the specified length.
 
 #### `.datetime(value: number)`
 
-A valid datetime string in ISO 8601 format. e.g. `2050-10-25T14:45:30.370Z`.
+A valid datetime string in ISO 8601 format. e.g.:
+
+```ts
+'2050-10-25T14:45:30Z'
+'2050-10-25T14:45:30.3Z'
+'2050-10-25T14:45:30.37Z'
+'2050-10-25T14:45:30.370Z'
+```
 
 #### `.date(value: number)`
 
