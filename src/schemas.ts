@@ -308,8 +308,10 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
       time: () => (data) => {
         if (typeof data !== 'string') return []
         const timestamp = Date.parse(`2000-01-01T${data}Z`)
-        const datetime = isNaN(timestamp) ? null : new Date(timestamp).toISOString().slice(11, 23)
-        return datetime === data || [['err_string_time']]
+        const expectedDateTime = isNaN(timestamp) ? null : new Date(timestamp).toISOString().slice(11, 19)
+        const receivedDateTime = data.slice(0, 8)
+        const hasValidMilliseconds = /^(\.\d{1,3})?$/.test(data.slice(8))
+        return (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [['err_string_time']]
       },
       lowercase: () => (data) => {
         if (typeof data !== 'string') return []

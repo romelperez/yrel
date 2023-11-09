@@ -162,10 +162,10 @@ test('date()', () => {
 
 test('time()', () => {
   const schema = y.string().time()
-  ;['00:00:00.000', '14:45:30.370'].forEach((data) => {
+  ;['00:00:00', '00:00:00.0', '00:00:00.00', '00:00:00.000', '14:45:30.370'].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({ isValid: true })
   })
-  ;['00:61:00.000', '24:45:30.370'].forEach((data) => {
+  ;['00:61:00.000', '24:45:30.370', '24:45:30.', '24:45:30.3702', '24:45:30.370Z'].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({
       isValid: false,
       errors: [['err_string_time']]

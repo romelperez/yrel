@@ -702,7 +702,14 @@ A valid date string fragment of the ISO 8601 format. e.g. `2050-10-25`.
 
 #### `.time(value: number)`
 
-A valid time string fragment of the ISO 8601 format. e.g. `14:45:30.370`.
+A valid time string fragment of the ISO 8601 format. e.g.:
+
+```ts
+'14:45:30'
+'14:45:30.3'
+'14:45:30.37'
+'14:45:30.370'
+```
 
 #### `.lowercase()`
 
