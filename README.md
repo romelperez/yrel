@@ -400,6 +400,57 @@ console.log(validation.issues)
 */
 ```
 
+If custom errors need to be reported for children elements, such as properties
+of an object, the utility `reportYrel` can be used.
+
+```ts
+import { y, validateYrel, reportYrel } from 'yrel'
+
+const schema = y
+  .object({
+    name: y.string(),
+    password: y.string(),
+    passwordConfirmation: y.string()
+  })
+  .validate(
+    (value) =>
+      value.password === value.passwordConfirmation ||
+      reportYrel({
+        children: [
+          { key: 'password', errors: [['err_custom', 'password_dont_match']] },
+          { key: 'passwordConfirmation', errors: [['err_custom', 'password_dont_match']] }
+        ]
+      })
+  )
+
+const validation = validateYrel(schema, {
+  name: 'a',
+  password: 'x',
+  passwordConfirmation: 'y'
+})
+
+console.log(validation.isValid) // false
+console.log(validation.issues)
+/*
+[
+  {
+    "key": "password",
+    "errors": [
+      ["err_custom", "password_dont_match"]
+    ]
+  },
+  {
+    "key": "passwordConfirmation",
+    "errors": [
+      ["err_custom", "password_dont_match"]
+    ]
+  }
+]
+*/
+```
+
+`reportYrel` can also accept `errors` for the same schema error report.
+
 ## Error Translations
 
 Yrel reports the validation issues with only the error codes with their

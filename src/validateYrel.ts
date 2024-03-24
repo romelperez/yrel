@@ -10,14 +10,21 @@ type ValidateYrelValidation<Schema extends YrelSchema> =
   | { isValid: true; issues: never[]; data: InferYrel<Schema> }
   | { isValid: false; issues: ValidateYrelIssue[]; data: undefined }
 
-const getIssues = (item: YrelResolution): ValidateYrelIssue[] => {
-  return [
-    ...(item.errors.length > 0 ? [{ key: item.key, errors: item.errors }] : []),
-    ...item.children.reduce(
-      (total: ValidateYrelIssue[], item) => [...total, ...getIssues(item)],
-      []
-    )
-  ]
+const getIssuesMap = (
+  resolution: YrelResolution,
+  map: Record<string, YrelError[]>
+): Record<string, YrelError[]> => {
+  if (resolution.errors.length) {
+    map[resolution.key] = map[resolution.key]
+      ? [...map[resolution.key], ...resolution.errors]
+      : resolution.errors
+  }
+
+  for (const child of resolution.children) {
+    getIssuesMap(child, map)
+  }
+
+  return map
 }
 
 const validateYrel = <Schema extends YrelSchema>(
@@ -33,7 +40,13 @@ const validateYrel = <Schema extends YrelSchema>(
     return { isValid, issues: [], data: tree.data as InferYrel<Schema> }
   }
 
-  return { isValid, issues: getIssues(tree), data: undefined }
+  const issuesMap = getIssuesMap(tree, {})
+  const issues: ValidateYrelIssue[] = Object.keys(issuesMap).map((key) => ({
+    key,
+    errors: issuesMap[key]
+  }))
+
+  return { isValid, issues, data: undefined }
 }
 
 export { type ValidateYrelIssue, type ValidateYrelValidation, validateYrel }

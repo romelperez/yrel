@@ -44,8 +44,32 @@ const processYrel = (
 
     for (const validate of schema.__validators) {
       const result = validate(data, schema.__cache)
-      if (result !== true) {
+
+      // Errors.
+      if (Array.isArray(result)) {
         errors.push(...result)
+      }
+      // Unknown error.
+      // User may mistakenly send `false` and thus it should be treated as error.
+      else if ((result as any) === false) {
+        errors.push(['err_unknown'])
+      }
+      // YrelReport.
+      else if (typeof result !== 'boolean') {
+        if (result.errors) {
+          errors.push(...result.errors)
+        }
+
+        if (result.children) {
+          const reportChildren = result.children.map<YrelResolution>((child) => ({
+            key: key ? `${key}.${child.key}` : child.key,
+            isValid: false,
+            data: undefined,
+            errors: child.errors,
+            children: []
+          }))
+          children.push(...reportChildren)
+        }
       }
     }
 

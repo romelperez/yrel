@@ -13,7 +13,8 @@ import type {
   YREL_UNION,
   YREL_TUPLE,
   YREL_OBJECT,
-  YREL_RECORD
+  YREL_RECORD,
+  YREL_REPORT
 } from './constants.js'
 
 // Validation and Error Handling
@@ -75,7 +76,13 @@ export type YrelTransformer<Data = unknown> = (data: Data, cache: YrelCache) => 
 
 export type YrelChecker<Data = unknown, Cache = YrelCache> = (data: Data, cache: Cache) => boolean
 
-export type YrelValidation = true | YrelError[]
+export type YrelReport = {
+  __type: typeof YREL_REPORT
+  errors?: [YrelError, ...YrelError[]]
+  children?: Array<{ key: string; errors: [YrelError, ...YrelError[]] }>
+}
+
+export type YrelValidation = true | YrelError[] | YrelReport
 
 export type YrelValidator<Data = unknown, Cache = YrelCache> = (
   data: Data,
