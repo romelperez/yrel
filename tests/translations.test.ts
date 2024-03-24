@@ -52,19 +52,20 @@ test('Should translate error codes with Ukti translations', () => {
     }
   }
 
-  const t = createUktiTranslator<YrelErrorTranslations & CustomTranslations>({
-    locale: 'en',
+  const translator = createUktiTranslator<YrelErrorTranslations & CustomTranslations>({
     translations
   })
+  const t = translator('en')
 
   const schema = y.object({
     name: y.string().min(2).max(10),
     age: y.number().gte(0).lte(100),
     married: y.boolean().optional(),
-    sex: y.union(
-      [y.literal('female'), y.literal('male')],
-      { errors: [['err_custom', 'err_custom_sex']] }
-    ).optional(),
+    sex: y
+      .union([y.literal('female'), y.literal('male')], {
+        errors: [['err_custom', 'err_custom_sex']]
+      })
+      .optional(),
     pets: y.array(y.string().nonempty().max(10)).max(3).nullable()
   })
 
@@ -82,12 +83,12 @@ test('Should translate error codes with Ukti translations', () => {
     throw Error()
   }
 
-  const validationIssuesAsObject: Record<string, ValidateYrelIssue> = validation.issues
-    .reduce((obj, item) => ({
+  const validationIssuesAsObject: Record<string, ValidateYrelIssue> = validation.issues.reduce(
+    (obj, item) => ({
       ...obj,
       [item.key]: {
         ...item,
-        errors: item.errors.map(err => {
+        errors: item.errors.map((err) => {
           // Type-safety is not enforced here but should be enforced when creating
           // the translation definition.
           if (err[0] === 'err_custom') {
@@ -96,15 +97,21 @@ test('Should translate error codes with Ukti translations', () => {
           return (t[err[0]] as any)(err[1])
         })
       }
-    }), {})
+    }),
+    {}
+  )
 
   // console.log('validation.issues:', JSON.stringify(validation.issues, null, 2))
   // console.log('validationIssuesAsObject:', JSON.stringify(validationIssuesAsObject, null, 2))
 
-  expect(validationIssuesAsObject.name?.errors).toEqual(['The field should have at least 2 characters.'])
+  expect(validationIssuesAsObject.name?.errors).toEqual([
+    'The field should have at least 2 characters.'
+  ])
   expect(validationIssuesAsObject.age?.errors).toEqual(['This number should be at least 0.'])
   expect(validationIssuesAsObject.married?.errors).toEqual(['This field should be a boolean.'])
   expect(validationIssuesAsObject.sex?.errors).toEqual(['Invalid sex.'])
   expect(validationIssuesAsObject['pets.0']?.errors).toEqual(['This text field is required.'])
-  expect(validationIssuesAsObject['pets.1']?.errors).toEqual(['The field should have at most 10 characters.'])
+  expect(validationIssuesAsObject['pets.1']?.errors).toEqual([
+    'The field should have at most 10 characters.'
+  ])
 })

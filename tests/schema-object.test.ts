@@ -109,17 +109,20 @@ test('shape', () => {
 })
 
 test('defaultsTo()', () => {
-  const schema = y
-    .object({ a: y.number(), b: y.string() })
-    .defaultsTo({ a: 1, b: '2' })
+  const schema = y.object({ a: y.number(), b: y.string() }).defaultsTo({ a: 1, b: '2' })
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: { a: 1, b: '2' } })
-  expect(processYrel(schema, { a: 2, b: '3' })).toMatchObject({ isValid: true, data: { a: 2, b: '3' } })
+  expect(processYrel(schema, { a: 2, b: '3' })).toMatchObject({
+    isValid: true,
+    data: { a: 2, b: '3' }
+  })
 })
 
 test('transform()', () => {
   const schema = y
     .object({ w: y.string(), x: y.number() })
     .transform(({ w, x }) => ({ w: w.toLowerCase(), x }))
-  expect(processYrel(schema, { w: 'Y', x: 2 }))
-    .toMatchObject({ isValid: true, data: { w: 'y', x: 2 } })
+  expect(processYrel(schema, { w: 'Y', x: 2 })).toMatchObject({
+    isValid: true,
+    data: { w: 'y', x: 2 }
+  })
 })

@@ -59,7 +59,7 @@ const processYrel = (
     errors.push(['err_unknown'])
   }
 
-  isValid = (errors.length === 0) && children.every((child) => child.isValid)
+  isValid = errors.length === 0 && children.every((child) => child.isValid)
 
   return { key, isValid, data, errors, children }
 }

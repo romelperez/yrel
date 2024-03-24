@@ -141,7 +141,7 @@ test('defaultsTo()', () => {
 })
 
 test('transform()', () => {
-  const schema = y.number().transform(data => data * 2)
+  const schema = y.number().transform((data) => data * 2)
   expect(processYrel(schema, 10)).toMatchObject({ isValid: true, data: 20 })
   expect(processYrel(schema, 20)).toMatchObject({ isValid: true, data: 40 })
 })

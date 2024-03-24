@@ -42,10 +42,7 @@ import type {
 import { processYrel } from './processYrel.js'
 
 const isObject = (data: unknown): boolean =>
-  data !== null &&
-  typeof data === 'object' &&
-  typeof data !== 'function' &&
-  !Array.isArray(data)
+  data !== null && typeof data === 'object' && typeof data !== 'function' && !Array.isArray(data)
 
 const createSchemaFactory = <
   SchemaBase extends YrelSchema,
@@ -61,16 +58,14 @@ const createSchemaFactory = <
   Narrowers extends Record<string, unknown> = {
     [P in keyof Properties]?: (schema: SchemaExtension) => Properties[P]
   }
->(
-    props: {
-      schemaBase: SchemaBase | null | undefined
-      name: YrelSchema['__name']
-      resolver: YrelResolver
-      properties?: Partial<Properties>
-      validators?: Validators
-      narrowers?: Narrowers
-    }
-  ): SchemaExtension => {
+>(props: {
+  schemaBase: SchemaBase | null | undefined
+  name: YrelSchema['__name']
+  resolver: YrelResolver
+  properties?: Partial<Properties>
+  validators?: Validators
+  narrowers?: Narrowers
+}): SchemaExtension => {
   const { name, resolver, properties, validators, narrowers } = props
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const schemaBase = props.schemaBase ?? ({} as SchemaBase)
@@ -106,7 +101,7 @@ const createSchemaFactory = <
   }
 
   // Preprocessors.
-  (schemaBase as any).preprocess = (preprocess: YrelPreprocessor): YrelSchema => {
+  ;(schemaBase as any).preprocess = (preprocess: YrelPreprocessor): YrelSchema => {
     schemaBase.__cache.preprocessors = schemaBase.__cache.preprocessors
       ? [...schemaBase.__cache.preprocessors, preprocess]
       : [preprocess]
@@ -114,13 +109,13 @@ const createSchemaFactory = <
   }
 
   // defaultsTo().
-  (schemaBase as any).defaultsTo = (data: unknown): YrelSchema => {
+  ;(schemaBase as any).defaultsTo = (data: unknown): YrelSchema => {
     schemaBase.__cache.defaultData = data
     return schemaBase
   }
 
   // Transformers.
-  (schemaBase as any).transform = (transform: YrelTransformer): YrelSchema => {
+  ;(schemaBase as any).transform = (transform: YrelTransformer): YrelSchema => {
     schemaBase.__cache.transformers = schemaBase.__cache.transformers
       ? [...schemaBase.__cache.transformers, transform]
       : [transform]
@@ -128,7 +123,7 @@ const createSchemaFactory = <
   }
 
   // Common validators.
-  (schemaBase as any).validate = (validate: YrelValidator): YrelSchema => {
+  ;(schemaBase as any).validate = (validate: YrelValidator): YrelSchema => {
     schemaBase.__validators.push((data: unknown) => validate(data, schemaBase.__cache))
     return schemaBase
   }
@@ -261,7 +256,9 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
     name: YREL_STRING,
     resolver: (input, cache, context) => {
       const data = cache.coerce
-        ? input instanceof Date ? input.toISOString() : String(input)
+        ? input instanceof Date
+          ? input.toISOString()
+          : String(input)
         : input
       if (typeof data === 'string') {
         return { key: context.key, isValid: true, data, errors: [], children: [] }
@@ -293,11 +290,17 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
         if (typeof data !== 'string') return []
         const timestamp = Date.parse(data)
         // Get the datetime format '2000-01-01T00:00:00' to compare.
-        const expectedDateTime = isNaN(timestamp) ? null : new Date(timestamp).toISOString().slice(0, 19)
+        const expectedDateTime = isNaN(timestamp)
+          ? null
+          : new Date(timestamp).toISOString().slice(0, 19)
         const receivedDateTime = data.slice(0, 19)
         // Get the milliseconds for optional comparison.
         const hasValidMilliseconds = /^(\.\d{1,3})?Z$/.test(data.slice(19))
-        return (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [['err_string_date_time']]
+        return (
+          (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [
+            ['err_string_date_time']
+          ]
+        )
       },
       date: () => (data) => {
         if (typeof data !== 'string') return []
@@ -308,10 +311,14 @@ const createYrelSchemaString = (schemaBase?: YrelSchema): YrelSchemaString => {
       time: () => (data) => {
         if (typeof data !== 'string') return []
         const timestamp = Date.parse(`2000-01-01T${data}Z`)
-        const expectedDateTime = isNaN(timestamp) ? null : new Date(timestamp).toISOString().slice(11, 19)
+        const expectedDateTime = isNaN(timestamp)
+          ? null
+          : new Date(timestamp).toISOString().slice(11, 19)
         const receivedDateTime = data.slice(0, 8)
         const hasValidMilliseconds = /^(\.\d{1,3})?$/.test(data.slice(8))
-        return (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [['err_string_time']]
+        return (
+          (expectedDateTime === receivedDateTime && hasValidMilliseconds) || [['err_string_time']]
+        )
       },
       lowercase: () => (data) => {
         if (typeof data !== 'string') return []
@@ -356,9 +363,10 @@ const createYrelSchemaLiteral = <Data extends boolean | number | string>(
   })
 }
 
-const createYrelSchemaArray = <
-  Structure extends YrelSchema = YrelSchema
->(structure: Structure, schemaBase?: YrelSchema): YrelSchemaArray<Structure> => {
+const createYrelSchemaArray = <Structure extends YrelSchema = YrelSchema>(
+  structure: Structure,
+  schemaBase?: YrelSchema
+): YrelSchemaArray<Structure> => {
   return createSchemaFactory<YrelSchema, YrelSchemaArray<Structure>>({
     schemaBase,
     name: YREL_ARRAY,
@@ -399,7 +407,11 @@ const createYrelSchemaArray = <
 
 const createYrelSchemaUnion = <
   Structures extends [YrelSchema, YrelSchema, ...YrelSchema[]] = [YrelSchema, YrelSchema]
->(structures: Structures, config?: YrelValidationInSchemaConfig, schemaBase?: YrelSchema): YrelSchemaUnion<Structures> => {
+>(
+  structures: Structures,
+  config?: YrelValidationInSchemaConfig,
+  schemaBase?: YrelSchema
+): YrelSchemaUnion<Structures> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .union([...schemas]) requires schema definitions.')
   }
@@ -427,7 +439,11 @@ const createYrelSchemaUnion = <
 const createYrelSchemaTuple = <
   Structures extends [YrelSchema, ...YrelSchema[]] = [YrelSchema],
   RestStructure extends YrelSchema | undefined = undefined
->(structures: Structures, restStructure?: RestStructure, schemaBase?: YrelSchema): YrelSchemaTuple<Structures, RestStructure> => {
+>(
+  structures: Structures,
+  restStructure?: RestStructure,
+  schemaBase?: YrelSchema
+): YrelSchemaTuple<Structures, RestStructure> => {
   if (!structures || !structures.length) {
     throw new Error('Data validator .tuple([...schemas]) requires at least one schema definition.')
   }
@@ -467,7 +483,10 @@ const createYrelSchemaTuple = <
 
 const createYrelSchemaObject = <
   Shape extends Record<string, YrelSchema> = Record<string, YrelSchema>
->(structure: Shape, schemaBase?: YrelSchema): YrelSchemaObject<Shape> => {
+>(
+  structure: Shape,
+  schemaBase?: YrelSchema
+): YrelSchemaObject<Shape> => {
   type Data = {
     [P in keyof Shape]: InferYrel<Shape[P]>
   }
@@ -524,10 +543,11 @@ const createYrelSchemaObject = <
   })
 }
 
-const createYrelSchemaRecord = <
-  Key extends YrelSchemaString,
-  Value extends YrelSchema
->(key: Key, value: Value, schemaBase?: YrelSchema): YrelSchemaRecord<Key, Value> => {
+const createYrelSchemaRecord = <Key extends YrelSchemaString, Value extends YrelSchema>(
+  key: Key,
+  value: Value,
+  schemaBase?: YrelSchema
+): YrelSchemaRecord<Key, Value> => {
   return createSchemaFactory<YrelSchema, YrelSchemaRecord<Key, Value>>({
     schemaBase,
     name: YREL_RECORD,
@@ -539,12 +559,12 @@ const createYrelSchemaRecord = <
       const record = data as Record<string, unknown>
       const itemsKeys = Object.keys(record)
 
-      const keysInvalid = itemsKeys.filter(itemKey => {
+      const keysInvalid = itemsKeys.filter((itemKey) => {
         const validation = processYrel(key, itemKey)
         return !validation.isValid
       })
 
-      const children = itemsKeys.map(itemKey => {
+      const children = itemsKeys.map((itemKey) => {
         const item = record[itemKey]
         const contextKey = context.key ? `${context.key}.${String(itemKey)}` : String(itemKey)
         return processYrel(value, item, { key: contextKey })

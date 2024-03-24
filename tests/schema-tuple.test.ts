@@ -100,17 +100,13 @@ test('validate()', () => {
 })
 
 test('defaultsTo()', () => {
-  const schema = y
-    .tuple([y.number(), y.string()])
-    .defaultsTo([0, 'x'])
+  const schema = y.tuple([y.number(), y.string()]).defaultsTo([0, 'x'])
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: [0, 'x'] })
   expect(processYrel(schema, [1, 'w'])).toMatchObject({ isValid: true, data: [1, 'w'] })
 })
 
 test('transform()', () => {
-  const schema = y
-    .tuple([y.number(), y.number()])
-    .transform(([x, y]) => [x * 2, y * 2])
+  const schema = y.tuple([y.number(), y.number()]).transform(([x, y]) => [x * 2, y * 2])
   expect(processYrel(schema, [1, 2])).toMatchObject({ isValid: true, data: [2, 4] })
   expect(processYrel(schema, [10, 20])).toMatchObject({ isValid: true, data: [20, 40] })
 })

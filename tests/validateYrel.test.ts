@@ -158,7 +158,7 @@ test('coercers', () => {
 })
 
 test('preprocessors', () => {
-  const schema = y.number().preprocess(data => Number(data) > 0 ? 1 : 0)
+  const schema = y.number().preprocess((data) => (Number(data) > 0 ? 1 : 0))
   expect(validateYrel(schema, '-10')).toMatchObject({ isValid: true, data: 0 })
   expect(validateYrel(schema, '-2')).toMatchObject({ isValid: true, data: 0 })
   expect(validateYrel(schema, '0')).toMatchObject({ isValid: true, data: 0 })
@@ -167,7 +167,7 @@ test('preprocessors', () => {
 })
 
 test('transformers', () => {
-  const schema = y.string().transform(data => `${data}rem`)
+  const schema = y.string().transform((data) => `${data}rem`)
   expect(validateYrel(schema, '-10')).toMatchObject({ isValid: true, data: '-10rem' })
   expect(validateYrel(schema, '-2')).toMatchObject({ isValid: true, data: '-2rem' })
   expect(validateYrel(schema, '0')).toMatchObject({ isValid: true, data: '0rem' })
@@ -180,7 +180,11 @@ test('Should allow to define a "rootKey" to report issues on root schema', () =>
     name: y.string(),
     pets: y.array(y.string())
   })
-  const received = validateYrel(schema, { name: 'yrel', pets: ['cat', 1, 'dog', true] }, { rootKey: 'root' })
+  const received = validateYrel(
+    schema,
+    { name: 'yrel', pets: ['cat', 1, 'dog', true] },
+    { rootKey: 'root' }
+  )
   const expected = {
     isValid: false,
     issues: [

@@ -29,10 +29,9 @@ test('key validation', () => {
   const schema = y.record(y.string().date(), y.number())
   expect(processYrel(schema, {})).toMatchObject({ isValid: true })
   expect(processYrel(schema, { '2000-10-01': 1, '2000-10-02': 2 })).toMatchObject({ isValid: true })
-  expect(processYrel(
-    schema,
-    { '2000-10-01': 1, '2000-10-xx': 2, '2000-10-03': true, '2000-10-yy': 4 }
-  )).toMatchObject({
+  expect(
+    processYrel(schema, { '2000-10-01': 1, '2000-10-xx': 2, '2000-10-03': true, '2000-10-yy': 4 })
+  ).toMatchObject({
     key: '',
     isValid: false,
     errors: [['err_record_keys', { keys: ['2000-10-xx', '2000-10-yy'] }]],
@@ -76,17 +75,15 @@ test('validate()', () => {
 })
 
 test('defaultsTo()', () => {
-  const schema = y
-    .record(y.string(), y.number())
-    .defaultsTo({ a: 1, b: 2 })
+  const schema = y.record(y.string(), y.number()).defaultsTo({ a: 1, b: 2 })
   expect(processYrel(schema, undefined)).toMatchObject({ isValid: true, data: { a: 1, b: 2 } })
   expect(processYrel(schema, { a: 2, b: 3 })).toMatchObject({ isValid: true, data: { a: 2, b: 3 } })
 })
 
 test('transform()', () => {
-  const schema = y
-    .record(y.string(), y.number())
-    .transform(data => ({ ...data, x: 100 }))
-  expect(processYrel(schema, { a: 1, b: 2 }))
-    .toMatchObject({ isValid: true, data: { a: 1, b: 2, x: 100 } })
+  const schema = y.record(y.string(), y.number()).transform((data) => ({ ...data, x: 100 }))
+  expect(processYrel(schema, { a: 1, b: 2 })).toMatchObject({
+    isValid: true,
+    data: { a: 1, b: 2, x: 100 }
+  })
 })

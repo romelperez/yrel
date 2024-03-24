@@ -16,10 +16,10 @@ test('initial', () => {
 
 test('coerce()', () => {
   const schema = y.boolean().coerce()
-  ;[false, undefined, null, 0, NaN, ''].forEach(data => {
+  ;[false, undefined, null, 0, NaN, ''].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({ isValid: true, data: false })
   })
-  ;[true, 1, 'a', {}, [], () => {}].forEach(data => {
+  ;[true, 1, 'a', {}, [], () => {}].forEach((data) => {
     expect(processYrel(schema, data)).toMatchObject({ isValid: true, data: true })
   })
 })
@@ -39,9 +39,7 @@ test('nullable()', () => {
 })
 
 test('validate()', () => {
-  const schema = y
-    .boolean()
-    .validate((data) => data || [['err_custom', 'Field is required.']])
+  const schema = y.boolean().validate((data) => data || [['err_custom', 'Field is required.']])
   expect(processYrel(schema, true)).toMatchObject({ isValid: true })
   expect(processYrel(schema, false)).toMatchObject({
     isValid: false,
@@ -75,7 +73,7 @@ test('defaultsTo()', () => {
 })
 
 test('transform()', () => {
-  const schema = y.boolean().transform(data => !data)
+  const schema = y.boolean().transform((data) => !data)
   expect(processYrel(schema, true)).toMatchObject({ isValid: true, data: false })
   expect(processYrel(schema, false)).toMatchObject({ isValid: true, data: true })
 })

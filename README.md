@@ -122,7 +122,7 @@ not optional nor nullable, a schema can be pre-processed to change its data type
 or anything required.
 
 ```ts
-const schema = y.string().preprocess(data => String(data))
+const schema = y.string().preprocess((data) => String(data))
 validateYrel(schema, 100) // { isValid: true, data: '100' }
 ```
 
@@ -157,7 +157,7 @@ All schemas data can be transformed. When a schema is valid, the schema data can
 be transformed to a new value of the same type.
 
 ```ts
-const schema = y.string().transform(data => data.toLowerCase())
+const schema = y.string().transform((data) => data.toLowerCase())
 validateYrel(schema, 'ABC') // { isValid: true, data: 'abc' }
 ```
 
@@ -354,17 +354,16 @@ import { y, validateYrel, type YrelValidation } from 'yrel'
 
 // Check that the string has the format "xxx-xxx".
 const validateUserId = (value: string): YrelValidation =>
-  (/^\w{3,3}-\w{3,3}$/).test(value) || [['err_custom', 'my_custom_error_invalid_user_id']]
+  /^\w{3,3}-\w{3,3}$/.test(value) || [['err_custom', 'my_custom_error_invalid_user_id']]
 
 const schema = y.object({
   id: y.string().validate(validateUserId),
   name: y.string().min(2),
   age: y.number().gte(18),
   pets: y.array(
-    y.union(
-      [y.literal('dog'), y.literal('cat'), y.literal('parrot')],
-      { errors: [['err_custom', 'my_custom_error_invalid_pet']] }
-    )
+    y.union([y.literal('dog'), y.literal('cat'), y.literal('parrot')], {
+      errors: [['err_custom', 'my_custom_error_invalid_pet']]
+    })
   )
 })
 
@@ -415,10 +414,12 @@ const schema = y.object({
   name: y.string().min(2).max(10),
   age: y.number().gte(0).lte(100),
   married: y.boolean().optional(),
-  sex: y.union(
-    [y.literal('female'), y.literal('male')],
-    { errors: [['err_custom', 'err_custom_sex']] } // Custom error report.
-  ).optional(),
+  sex: y
+    .union(
+      [y.literal('female'), y.literal('male')],
+      { errors: [['err_custom', 'err_custom_sex']] } // Custom error report.
+    )
+    .optional(),
   pets: y.array(y.string().nonempty().max(10)).max(3).nullable()
 })
 
@@ -439,39 +440,27 @@ Since the data is invalid, the following issues are reported:
 [
   {
     "key": "name",
-    "errors": [
-      ["err_string_min", { "min": 2 }]
-    ]
+    "errors": [["err_string_min", { "min": 2 }]]
   },
   {
     "key": "age",
-    "errors": [
-      ["err_number_gte", { "gte": 0 }]
-    ]
+    "errors": [["err_number_gte", { "gte": 0 }]]
   },
   {
     "key": "married",
-    "errors": [
-      ["err_boolean"]
-    ]
+    "errors": [["err_boolean"]]
   },
   {
     "key": "sex",
-    "errors": [
-      ["err_custom", "err_custom_sex"]
-    ]
+    "errors": [["err_custom", "err_custom_sex"]]
   },
   {
     "key": "pets.0",
-    "errors": [
-      ["err_string"]
-    ]
+    "errors": [["err_string"]]
   },
   {
     "key": "pets.1",
-    "errors": [
-      ["err_string_max", { "max": 10 }]
-    ]
+    "errors": [["err_string_max", { "max": 10 }]]
   }
 ]
 ```
@@ -512,13 +501,14 @@ const translate = createUktiTranslator<YrelErrorTranslations & ErrorCustomTransl
 
 // Using the previous Yrel schema validation result:
 if (!validation.isValid) {
-  validation.issues.forEach(issue => {
-    issue.errors.forEach(err => {
+  validation.issues.forEach((issue) => {
+    issue.errors.forEach((err) => {
       // Type-safety is not enforced here but should be enforced when creating
       // the translation definition.
-      const errorMessage = err[0] === 'err_custom'
-        ? (translate[err[1] as keyof ErrorCustomTranslations] as any)(err[2])
-        : (translate[err[0]] as any)(err[1])
+      const errorMessage =
+        err[0] === 'err_custom'
+          ? (translate[err[1] as keyof ErrorCustomTranslations] as any)(err[2])
+          : (translate[err[0]] as any)(err[1])
       console.log(`${issue.key}:`, errorMessage)
     })
   })
@@ -542,7 +532,7 @@ Schemas with custom data types can be created with the general schema `.any<type
 ```ts
 const schema = y
   .any<'cat' | 'dog'>()
-  .validate(data => data === 'cat' || data === 'dog' || [['err_custom', 'not_a_pet']])
+  .validate((data) => data === 'cat' || data === 'dog' || [['err_custom', 'not_a_pet']])
 
 type Schema = InferYrel<typeof schema> // 'cat' | 'dog'
 
@@ -762,12 +752,7 @@ An array of at most the specified length.
 A value that matches one of the specified schemas.
 
 ```ts
-const schema = y.union([
-  y.number(),
-  y.literal('cat'),
-  y.literal('dog'),
-  y.literal('parrot')
-])
+const schema = y.union([y.number(), y.literal('cat'), y.literal('dog'), y.literal('parrot')])
 // number | 'cat' | 'dog' | 'parrot'
 ```
 
@@ -780,7 +765,7 @@ type Languages = 'en' | 'es' | 'fr' | 'hi' | 'zh'
 const languages: Languages[] = ['en', 'es', 'fr', 'hi', 'zh']
 
 const schema = y.union<[YrelSchemaLiteral<Languages>, YrelSchemaLiteral<Languages>]>(
-  languages.map(lang => y.literal(lang)) as [
+  languages.map((lang) => y.literal(lang)) as [
     YrelSchemaLiteral<Languages>,
     YrelSchemaLiteral<Languages>
   ]
@@ -795,11 +780,7 @@ Or using a custom type with `y.any<type>()`.
 An array with fixed number of elements and each of them with a specific data schema.
 
 ```ts
-const schema = y.tuple([
-  y.number(),
-  y.string(),
-  y.boolean().optional()
-])
+const schema = y.tuple([y.number(), y.string(), y.boolean().optional()])
 // [number, string, boolean | undefined]
 ```
 
