@@ -17,7 +17,7 @@ import {
   YREL_TUPLE,
   YREL_OBJECT,
   YREL_RECORD
-} from './constants'
+} from './constants.js'
 import type {
   InferYrel,
   YrelError,
@@ -38,8 +38,8 @@ import type {
   YrelSchemaObject,
   YrelSchemaRecord,
   YrelSchemaAny
-} from './types'
-import { processYrel } from './processYrel'
+} from './types.js'
+import { processYrel } from './processYrel.js'
 
 const isObject = (data: unknown): boolean =>
   data !== null &&

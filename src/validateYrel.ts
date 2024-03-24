@@ -1,5 +1,5 @@
-import type { YrelError, YrelResolution, YrelSchema, InferYrel } from './types'
-import { processYrel } from './processYrel'
+import type { YrelError, YrelResolution, YrelSchema, InferYrel } from './types.js'
+import { processYrel } from './processYrel.js'
 
 interface ValidateYrelIssue {
   key: string

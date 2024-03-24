@@ -1,4 +1,4 @@
-import type { YrelSchema, YrelResolution, YrelResolverContext, YrelError } from './types'
+import type { YrelSchema, YrelResolution, YrelResolverContext, YrelError } from './types.js'
 
 const processYrel = (
   schema: YrelSchema,

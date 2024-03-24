@@ -14,7 +14,7 @@ import type {
   YREL_TUPLE,
   YREL_OBJECT,
   YREL_RECORD
-} from './constants'
+} from './constants.js'
 
 // Validation and Error Handling
 
