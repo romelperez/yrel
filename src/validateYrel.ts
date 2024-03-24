@@ -6,6 +6,10 @@ interface ValidateYrelIssue {
   errors: YrelError[]
 }
 
+type ValidateYrelValidation<Schema extends YrelSchema> =
+  | { isValid: true, issues: never[], data: InferYrel<Schema> }
+  | { isValid: false, issues: ValidateYrelIssue[], data: undefined }
+
 const getIssues = (item: YrelResolution): ValidateYrelIssue[] => {
   return [
     ...((item.errors.length > 0) ? [{ key: item.key, errors: item.errors }] : []),
@@ -17,9 +21,7 @@ const validateYrel = <Schema extends YrelSchema>(
   schema: Schema,
   data: unknown,
   options?: { rootKey?: string }
-):
-  | { isValid: true, issues: never[], data: InferYrel<Schema> }
-  | { isValid: false, issues: ValidateYrelIssue[], data: undefined } => {
+): ValidateYrelValidation<Schema> => {
   const { rootKey = '' } = { ...options }
   const tree = processYrel(schema, data, { key: rootKey })
   const isValid = tree.isValid
@@ -31,5 +33,4 @@ const validateYrel = <Schema extends YrelSchema>(
   return { isValid, issues: getIssues(tree), data: undefined }
 }
 
-export type { ValidateYrelIssue }
-export { validateYrel }
+export { type ValidateYrelIssue, type ValidateYrelValidation, validateYrel }
