@@ -122,8 +122,12 @@ test('nested data processing', () => {
     ],
     y.boolean().coerce()
   )
-  expect(processYrel(schema, ['100', undefined, 1, 0])).toMatchObject({
+  const data = ['100', undefined, 1, 0]
+  const result = processYrel(schema, data)
+  expect(result).toMatchObject({
     isValid: true,
     data: [100, 'A', true, false]
   })
+  expect(result.data).not.toBe(data)
+  expect(data).toEqual(['100', undefined, 1, 0])
 })

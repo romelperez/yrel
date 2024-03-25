@@ -127,8 +127,12 @@ test('nested data processing', () => {
       .defaultsTo('a')
       .transform((value) => value.toUpperCase())
   )
-  expect(processYrel(schema, ['x', undefined, 'y'])).toMatchObject({
+  const data = ['x', undefined, 'y']
+  const result = processYrel(schema, data)
+  expect(result).toMatchObject({
     isValid: true,
     data: ['X', 'A', 'Y']
   })
+  expect(result.data).not.toBe(data)
+  expect(data).toEqual(['x', undefined, 'y'])
 })

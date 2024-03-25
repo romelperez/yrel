@@ -375,16 +375,18 @@ const createYrelSchemaArray = <Structure extends YrelSchema = YrelSchema>(
         return { key: context.key, isValid: false, data, errors: [['err_array']], children: [] }
       }
 
-      const children = data.map((dataItem, index) => {
+      const array = [...data]
+
+      const children = array.map((dataItem, index) => {
         const key = context.key ? `${context.key}.${index}` : String(index)
         const itemProcessed = processYrel(structure, dataItem, { key })
-        data.splice(index, 1, itemProcessed.data)
+        array.splice(index, 1, itemProcessed.data)
         return itemProcessed
       })
 
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, data, errors: [], children }
+      return { key: context.key, isValid, data: array, errors: [], children }
     },
     validators: {
       nonempty: () => (data) => {
@@ -464,23 +466,25 @@ const createYrelSchemaTuple = <
         return { key: context.key, isValid: false, data, errors: [['err_tuple']], children: [] }
       }
 
+      const array = [...data]
+
       const mainItemsResolutions = structures.map((structure, index) => {
         const key = context.key ? `${context.key}.${index}` : String(index)
-        const itemProcessed = processYrel(structure, data[index], { key })
-        data.splice(index, 1, itemProcessed.data)
+        const itemProcessed = processYrel(structure, array[index], { key })
+        array.splice(index, 1, itemProcessed.data)
         return itemProcessed
       })
 
       let restItemsResolutions: YrelResolution[] = []
 
       if (restStructure) {
-        const restData = data.slice(structures.length)
+        const restData = array.slice(structures.length)
 
         restItemsResolutions = restData.map((restItem, restItemIndex) => {
           const index = structures.length + restItemIndex
           const key = context.key ? `${context.key}.${index}` : String(index)
           const itemProcessed = processYrel(restStructure, restItem, { key })
-          data.splice(index, 1, itemProcessed.data)
+          array.splice(index, 1, itemProcessed.data)
           return itemProcessed
         })
       }
@@ -488,7 +492,7 @@ const createYrelSchemaTuple = <
       const children = [...mainItemsResolutions, ...restItemsResolutions]
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, data, errors: [], children }
+      return { key: context.key, isValid, data: array, errors: [], children }
     }
   })
 }
@@ -511,8 +515,9 @@ const createYrelSchemaObject = <
         return { key: context.key, isValid: false, data, errors: [['err_object']], children: [] }
       }
 
+      const dataProcessed = { ...(data as Record<keyof Shape, unknown>) }
       const structureKeys = Object.keys(structure) as Array<keyof Shape>
-      const dataKeys = Object.keys(data as object) as Array<keyof Data>
+      const dataKeys = Object.keys(dataProcessed as object) as Array<keyof Data>
 
       // Check for unexpected object props.
       // If a property is defined in data but not in structure, it is unexpected.
@@ -525,26 +530,25 @@ const createYrelSchemaObject = <
           return {
             key: context.key,
             isValid: false,
-            data,
+            data: dataProcessed,
             errors: [['err_object_unexpected_props', { props: unexpectedProps }]],
             children: []
           }
         }
       }
 
-      const parentData = data as Record<keyof Shape, unknown>
       const children = structureKeys.map((itemKey) => {
         const itemSchema = structure[itemKey]
-        const itemData = parentData[itemKey]
+        const itemData = dataProcessed[itemKey]
         const key = context.key ? `${context.key}.${String(itemKey)}` : String(itemKey)
         const itemProcessed = processYrel(itemSchema, itemData, { key })
-        parentData[itemKey] = itemProcessed.data
+        dataProcessed[itemKey] = itemProcessed.data
         return itemProcessed
       })
 
       const isValid = children.every((child) => child.isValid)
 
-      return { key: context.key, isValid, data, errors: [], children }
+      return { key: context.key, isValid, data: dataProcessed, errors: [], children }
     },
     properties: {
       shape: structure
@@ -571,7 +575,7 @@ const createYrelSchemaRecord = <Key extends YrelSchemaString, Value extends Yrel
         return { key: context.key, isValid: false, data, errors: [['err_record']], children: [] }
       }
 
-      const record = data as Record<string, unknown>
+      const record = { ...(data as Record<string, unknown>) }
       const itemsKeys = Object.keys(record)
 
       const keysInvalid = itemsKeys.filter((itemKey) => {
@@ -593,7 +597,7 @@ const createYrelSchemaRecord = <Key extends YrelSchemaString, Value extends Yrel
         ? [['err_record_keys', { keys: keysInvalid }]]
         : []
 
-      return { key: context.key, isValid, data, errors, children }
+      return { key: context.key, isValid, data: record, errors, children }
     }
   })
 }

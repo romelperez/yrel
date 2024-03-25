@@ -96,8 +96,12 @@ test('nested data processing', () => {
       .defaultsTo(1)
       .transform((value) => value * 10)
   )
-  expect(processYrel(schema, { a: 4, b: undefined })).toMatchObject({
+  const data = { a: 4, b: undefined }
+  const result = processYrel(schema, data)
+  expect(result).toMatchObject({
     isValid: true,
     data: { a: 40, b: 10 }
   })
+  expect(result.data).not.toBe(data)
+  expect(data).toEqual({ a: 4, b: undefined })
 })

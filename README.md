@@ -118,7 +118,7 @@ The methods should be called at the end of schema definition.
 ## Preprocessors
 
 All schemas can be pre-processed before validation. After checking a value is
-not optional nor nullable, a schema can be pre-processed to change its data type
+not optional nor nullable, a schema can be pre-processed to change its value
 or anything required.
 
 ```ts
@@ -159,6 +159,20 @@ be transformed to a new value of the same type.
 ```ts
 const schema = y.string().transform((data) => data.toLowerCase())
 validateYrel(schema, 'ABC') // { isValid: true, data: 'abc' }
+```
+
+The transformed data may not be valid since validations were ran before transformation.
+e.g. A schema validator for a number greater than 10 is configured and the transformation
+sets the data to 5, then the data type may be still valid but it is actually invalid and
+reported as valid.
+
+```ts
+const schema = y
+  .number()
+  .gt(10)
+  .transform(() => 5)
+validateYrel(schema, 20) // { isValid: true, data: 5 }
+// It should be invalid since 5 is not greater than 10, as configured.
 ```
 
 ## Error Handling
