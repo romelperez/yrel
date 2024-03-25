@@ -4,7 +4,7 @@ import { y, isYrel } from '../'
 test('fake yrel schemas', () => {
   ;[undefined, null, true, false, 10, 'a', {}, [], () => {}].forEach((schema) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    expect(isYrel(schema as any)).toBe(false)
+    expect(isYrel(schema)).toBe(false)
   })
 })
 
