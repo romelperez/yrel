@@ -126,3 +126,15 @@ test('transform()', () => {
     data: { w: 'y', x: 2 }
   })
 })
+
+test('nested data processing', () => {
+  const schema = y.object({
+    a: y.number().defaultsTo(0),
+    b: y.string().transform((value) => value.toUpperCase()),
+    c: y.string().coerce()
+  })
+  expect(processYrel(schema, { b: 'b', c: true })).toMatchObject({
+    isValid: true,
+    data: { a: 0, b: 'B', c: 'true' }
+  })
+})

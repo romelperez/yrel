@@ -417,8 +417,8 @@ const schema = y
       value.password === value.passwordConfirmation ||
       reportYrel({
         children: [
-          { key: 'password', errors: [['err_custom', 'password_dont_match']] },
-          { key: 'passwordConfirmation', errors: [['err_custom', 'password_dont_match']] }
+          { key: 'password', errors: [['err_custom', 'passwords_dont_match']] },
+          { key: 'passwordConfirmation', errors: [['err_custom', 'passwords_dont_match']] }
         ]
       })
   )
@@ -436,20 +436,21 @@ console.log(validation.issues)
   {
     "key": "password",
     "errors": [
-      ["err_custom", "password_dont_match"]
+      ["err_custom", "passwords_dont_match"]
     ]
   },
   {
     "key": "passwordConfirmation",
     "errors": [
-      ["err_custom", "password_dont_match"]
+      ["err_custom", "passwords_dont_match"]
     ]
   }
 ]
 */
 ```
 
-`reportYrel` can also accept `errors` for the same schema error report.
+`reportYrel` can also accept `errors` as first parameter property for the same
+schema error report.
 
 ## Error Translations
 

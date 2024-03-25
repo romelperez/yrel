@@ -87,3 +87,17 @@ test('transform()', () => {
     data: { a: 1, b: 2, x: 100 }
   })
 })
+
+test('nested data processing', () => {
+  const schema = y.record(
+    y.string(),
+    y
+      .number()
+      .defaultsTo(1)
+      .transform((value) => value * 10)
+  )
+  expect(processYrel(schema, { a: 4, b: undefined })).toMatchObject({
+    isValid: true,
+    data: { a: 40, b: 10 }
+  })
+})

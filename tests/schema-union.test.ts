@@ -74,3 +74,12 @@ test('transform()', () => {
   expect(processYrel(schema, 'dog')).toMatchObject({ isValid: true, data: 'cat' })
   expect(processYrel(schema, 'parrot')).toMatchObject({ isValid: true, data: 'parrot' })
 })
+
+test('nested data processing', () => {
+  const schema = y.union([
+    y.number().transform((value) => value * 2),
+    y.string().transform((value) => value.toUpperCase())
+  ])
+  expect(processYrel(schema, 10)).toMatchObject({ isValid: true, data: 20 })
+  expect(processYrel(schema, 'abc')).toMatchObject({ isValid: true, data: 'ABC' })
+})

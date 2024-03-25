@@ -110,3 +110,20 @@ test('transform()', () => {
   expect(processYrel(schema, [1, 2])).toMatchObject({ isValid: true, data: [2, 4] })
   expect(processYrel(schema, [10, 20])).toMatchObject({ isValid: true, data: [20, 40] })
 })
+
+test('nested data processing', () => {
+  const schema = y.tuple(
+    [
+      y.number().coerce(),
+      y
+        .string()
+        .defaultsTo('a')
+        .transform((value) => value.toUpperCase())
+    ],
+    y.boolean().coerce()
+  )
+  expect(processYrel(schema, ['100', undefined, 1, 0])).toMatchObject({
+    isValid: true,
+    data: [100, 'A', true, false]
+  })
+})
