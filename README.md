@@ -560,17 +560,18 @@ const translations: UktiTranslations<YrelErrorTranslations & ErrorCustomTranslat
   }
 }
 
-const translate = createUktiTranslator<YrelErrorTranslations & ErrorCustomTranslations>({
-  locale: 'en',
+const translator = createUktiTranslator<YrelErrorTranslations & ErrorCustomTranslations>({
   translations
 })
+const translate = translator('en')
 
 // Using the previous Yrel schema validation result:
 if (!validation.isValid) {
   validation.issues.forEach((issue) => {
     issue.errors.forEach((err) => {
       // Type-safety is not enforced here but should be enforced when creating
-      // the translation definition.
+      // the translation definition, since this snippet is mostly going to be used
+      // by libraries or app utilities once.
       const errorMessage =
         err[0] === 'err_custom'
           ? (translate[err[1] as keyof ErrorCustomTranslations] as any)(err[2])
